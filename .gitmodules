@@ -1,6 +1,6 @@
-[submodule "commons"]
-	path = commons
-	url = git@github.com:xcodeassociated/CloudNativeTemplateCommons.git
 [submodule "events"]
 	path = events
-	url = git@github.com:xcodeassociated/CloudNativeTemplateEvents.git
+	url = git@github.com:xcodeassociated/SpochiEvents.git
+[submodule "commons"]
+	path = commons
+	url = git@github.com:xcodeassociated/SpochiCommons.git
