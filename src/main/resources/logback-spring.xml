@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="projectName" value="mongo-service"/>
+    <property name="defaultPattern"
+              value="%d [%thread] [${projectName}] [%X{correlation_id}]  %-5level %logger{35} - %msg%n"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${defaultPattern}</pattern>
+        </encoder>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/${projectName}.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/archive/%d{yyyy,aux}/%d{MM,aux}/%d{dd,aux}/${projectName}.%d{yyyy-MM-dd}.%i.log.gz
+            </fileNamePattern>
+            <maxFileSize>5MB</maxFileSize>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${defaultPattern}</pattern>
+        </encoder>
+    </appender>
+
+    <springProfile name="docker">
+        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>logstash:9100</destination>
+            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <mdc/>
+                    <pattern>
+                        <pattern>
+                            {
+                                "application": "${projectName}",
+                                "host": "${HOSTNAME}",
+                                "active-profile": "${spring.profiles.active}",
+                                "timestamp": "%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZ}",
+                                "logger": "%logger",
+                                "thread": "%thread",
+                                "level": "%level",
+                                "message": "%message"
+                            }
+                        </pattern>
+                    </pattern>
+                    <stackTrace>
+                        <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                            <maxDepthPerThrowable>80</maxDepthPerThrowable>
+                            <maxLength>8192</maxLength>
+                            <shortenedClassNameLength>80</shortenedClassNameLength>
+                            <rootCauseFirst>true</rootCauseFirst>
+                        </throwableConverter>
+                    </stackTrace>
+                </providers>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="LOGSTASH" />
+        </root>
+        <logger name="com.xcodeassociated.service">
+            <level value="DEBUG" />
+        </logger>
+    </springProfile>
+
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="STDOUT"/>
+        </root>
+        <logger name="com.xcodeassociated.service">
+            <level value="DEBUG" />
+        </logger>
+    </springProfile>
+
+    <logger name="org.zalando.logbook">
+        <level value="TRACE" />
+    </logger>
+</configuration>

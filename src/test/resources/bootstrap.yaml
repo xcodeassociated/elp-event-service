@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: service
+  cloud:
+    config:
+      enabled: false
+
+management:
+  metrics:
+    export:
+      influx:
+        enabled: false
+
+eureka:
+  client:
+    enabled: false
+
+logging:
+  config: classpath:logback.xml

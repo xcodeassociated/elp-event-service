@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: event-service
+
+  cloud:
+    service-registry:
+      auto-registration:
+        enabled: false
+
+    config:
+      label: master
+      profile: default
+      uri: http://localhost:8888
+      enabled: false
+
+logging:
+  config: classpath:logback-spring.xml
+
+management:
+  metrics:
+    export:
+      influx:
+        enabled: false
+
+eureka:
+  client:
+    enabled: false
