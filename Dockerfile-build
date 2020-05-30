@@ -1,7 +1,11 @@
 FROM gradle:jdk11 as builder
 
 COPY --chown=gradle:gradle . /home/gradle/src/app
+
 WORKDIR /home/gradle/src/app/commons
+RUN gradle clean install
+
+WORKDIR /home/gradle/src/app/events
 RUN gradle clean install
 
 WORKDIR /home/gradle/src/app
