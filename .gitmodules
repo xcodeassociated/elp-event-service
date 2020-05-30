@@ -1,6 +1,0 @@
-[submodule "events"]
-	path = events
-	url = git@github.com:xcodeassociated/SpochiEvents.git
-[submodule "commons"]
-	path = commons
-	url = git@github.com:xcodeassociated/SpochiCommons.git
