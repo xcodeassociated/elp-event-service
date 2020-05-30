@@ -27,7 +27,7 @@ WORKDIR $APP_HOME
 COPY ./wait-for.sh $APP_HOME
 CMD chmod +x ./wait-for.sh
 
-COPY --from=builder /home/gradle/src/app/build/libs/service-*.jar ./app.jar
+COPY --from=builder /home/gradle/src/app/build/libs/*service*.jar ./app.jar
 
 # eureka
 EXPOSE 8761

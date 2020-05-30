@@ -12,7 +12,7 @@ WORKDIR $APP_HOME
 COPY ./wait-for.sh $APP_HOME
 CMD chmod +x ./wait-for.sh
 
-COPY ./build/libs/service-*.jar ./app.jar
+COPY ./build/libs/*service*.jar ./app.jar
 
 # app servlet
 EXPOSE 8082
