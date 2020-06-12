@@ -6,15 +6,15 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Set;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 @ToString(callSuper = true)
-public class EventDto extends BaseEntityDto {
-    private String title;
-    private String description;
-    private LocationDto location;
-    private Long start;
-    private Long stop;
+public class UserDataDto extends BaseEntityDto {
+    private String userAuthID;
+    private Set<EventCategoryDto> userPreferredCategories;
+    private Long maxDistance;
 }

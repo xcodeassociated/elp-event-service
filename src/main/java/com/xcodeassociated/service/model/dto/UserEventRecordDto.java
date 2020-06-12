@@ -11,10 +11,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 @ToString(callSuper = true)
-public class EventDto extends BaseEntityDto {
-    private String title;
-    private String description;
-    private LocationDto location;
-    private Long start;
-    private Long stop;
+public class UserEventRecordDto extends BaseEntityDto {
+    private String userAuthID;
+    private EventDto event;
 }
