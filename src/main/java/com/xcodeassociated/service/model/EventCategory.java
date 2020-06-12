@@ -31,6 +31,12 @@ public class EventCategory extends ComparableBaseDocument<EventCategory> {
                 .build();
     }
 
+    public EventCategory update(EventCategoryDto dto) {
+        this.title = dto.getTitle();
+        this.description = dto.getDescription();
+        return this;
+    }
+
     @Override
     public boolean compare(EventCategory other) {
         return StringUtils.equals(this.title, other.getTitle())

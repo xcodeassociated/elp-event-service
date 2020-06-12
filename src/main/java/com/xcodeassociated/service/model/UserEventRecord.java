@@ -33,6 +33,8 @@ public class UserEventRecord extends ComparableBaseDocument<UserEventRecord> {
                 .build();
     }
 
+    // note: update not designed for this document
+
     @Override
     public boolean compare(UserEventRecord other) {
         return StringUtils.equals(this.userAuthID, other.getUserAuthID())

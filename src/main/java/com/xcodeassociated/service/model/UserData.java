@@ -1,5 +1,7 @@
 package com.xcodeassociated.service.model;
 
+import com.xcodeassociated.service.exception.ServiceException;
+import com.xcodeassociated.service.exception.codes.ErrorCode;
 import com.xcodeassociated.service.model.dto.UserDataDto;
 import com.xcodeassociated.service.model.helpers.CollectionsByValueComparator;
 import lombok.*;
@@ -38,6 +40,23 @@ public class UserData extends ComparableBaseDocument<UserData> {
                         .collect(Collectors.toSet()))
                 .maxDistance(dto.getMaxDistance())
                 .build();
+    }
+
+    public UserData update(UserDataDto dto) {
+        if (!this.userAuthID.equals(dto.getUserAuthID())) {
+            throw new ServiceException(ErrorCode.S000, "Changing userAuthID is not allowed in UserData");
+        }
+        Set<EventCategory> newUserPreferredCategories = dto.getUserPreferredCategories().stream()
+                .map(EventCategory::fromDto)
+                .collect(Collectors.toSet());
+        if (!CollectionsByValueComparator.areCollectionsSame(this.userPreferredCategories, newUserPreferredCategories)) {
+            this.userPreferredCategories.clear();
+            this.userPreferredCategories.addAll(newUserPreferredCategories);
+        }
+
+        this.maxDistance = dto.getMaxDistance();
+
+        return this;
     }
 
     @Override

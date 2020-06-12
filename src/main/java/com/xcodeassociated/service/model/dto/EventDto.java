@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Set;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -17,4 +19,5 @@ public class EventDto extends BaseEntityDto {
     private LocationDto location;
     private Long start;
     private Long stop;
+    private Set<EventCategoryDto> eventCategories;
 }

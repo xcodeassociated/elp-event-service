@@ -1,6 +1,7 @@
 package com.xcodeassociated.service.model;
 
 import com.xcodeassociated.service.model.dto.EventDto;
+import com.xcodeassociated.service.model.helpers.CollectionsByValueComparator;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.ObjectUtils;
@@ -11,6 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Document()
 @Data
@@ -33,6 +36,8 @@ public class Event extends ComparableBaseDocument<Event> {
 
     private Long stop;
 
+    private Set<EventCategory> eventCategories;
+
     public static Event fromDto(EventDto dto) {
         return new Event().toBuilder()
                 .title(dto.getTitle())
@@ -40,6 +45,9 @@ public class Event extends ComparableBaseDocument<Event> {
                 .location(Location.fromDto(dto.getLocation()))
                 .start(dto.getStart())
                 .stop(dto.getStop())
+                .eventCategories(dto.getEventCategories().stream()
+                        .map(EventCategory::fromDto)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 
@@ -49,7 +57,30 @@ public class Event extends ComparableBaseDocument<Event> {
                 && StringUtils.equals(this.description, other.getDescription())
                 && Objects.equals(this.location, other.getLocation())
                 && ObjectUtils.compare(this.start, other.getStart()) == 0
-                && ObjectUtils.compare(this.stop, other.getStop()) == 0;
+                && ObjectUtils.compare(this.stop, other.getStop()) == 0
+                && CollectionsByValueComparator.areCollectionsSame(this.eventCategories, other.getEventCategories());
+    }
+
+    public Event update(EventDto dto) {
+        this.title = dto.getTitle();
+        this.description = dto.getDescription();
+        this.start = dto.getStart();
+        this.stop = dto.getStop();
+
+        Location newLocation = Location.fromDto(dto.getLocation());
+        if (!this.location.compare(newLocation)) {
+            this.location = newLocation;
+        }
+
+        Set<EventCategory> newEventCategories = dto.getEventCategories().stream()
+                .map(EventCategory::fromDto)
+                .collect(Collectors.toSet());
+        if (!CollectionsByValueComparator.areCollectionsSame(this.eventCategories, newEventCategories)) {
+            this.eventCategories.clear();
+            this.eventCategories.addAll(newEventCategories);
+        }
+
+        return this;
     }
 
     public EventDto toDto() {
@@ -62,11 +93,14 @@ public class Event extends ComparableBaseDocument<Event> {
                 .createdBy(this.getCreatedBy())
                 .modifiedBy(this.getModifiedBy())
                 .title(this.title)
+                .start(this.start)
+                .stop(this.stop)
                 .description(this.description)
                 .location(Optional.ofNullable(this.location)
                         .map(Location::toDto).orElse(null))
-                .start(this.start)
-                .stop(this.stop)
+                .eventCategories(this.eventCategories.stream()
+                        .map(EventCategory::toDto)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 }

@@ -1,15 +1,14 @@
 package com.xcodeassociated.service.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-@Getter
-@AllArgsConstructor
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
-public class LocationDto {
-    private String latitude;
-    private String longitude;
+@ToString(callSuper = true)
+public class LocationDto extends BaseEntityDto {
+    private Long latitude;
+    private Long longitude;
 }
