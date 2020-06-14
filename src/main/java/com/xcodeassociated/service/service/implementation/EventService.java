@@ -8,6 +8,7 @@ import com.xcodeassociated.service.model.dto.EventDto;
 import com.xcodeassociated.service.model.dto.EventWithCategoryDto;
 import com.xcodeassociated.service.repository.EventRepository;
 import com.xcodeassociated.service.repository.EventTemplateRepository;
+import com.xcodeassociated.service.repository.PageHelper;
 import com.xcodeassociated.service.service.EventServiceCommand;
 import com.xcodeassociated.service.service.EventServiceQuery;
 import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -47,17 +49,16 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     private final EventCategoryService eventCategoryService;
 
     @Override
-    public Flux<EventDto> getAllEvents() {
+    public Flux<EventDto> getAllEvents(Pageable pageable) {
         log.info("Getting all events");
-        return this.eventRepository
-                .findAll()
+        return PageHelper.apply(this.eventRepository.findAll(pageable.getSort()), pageable)
                 .map(Event::toDto);
     }
 
     @Override
-    public Flux<EventWithCategoryDto> getAllEventsWithCategories() {
+    public Flux<EventWithCategoryDto> getAllEventsWithCategories(Pageable pageable) {
         log.info("Getting all events with categories");
-        return this.eventRepository.findAll()
+        return PageHelper.apply(this.eventRepository.findAll(pageable.getSort()), pageable)
                 .map(this::toEventWrapper)
                 .map(e -> e.getEvent().toDto(e.getEventCategories()));
     }

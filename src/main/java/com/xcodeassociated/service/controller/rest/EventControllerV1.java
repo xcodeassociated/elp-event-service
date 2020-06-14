@@ -1,11 +1,14 @@
 package com.xcodeassociated.service.controller.rest;
 
+import com.xcodeassociated.commons.paging.CustomPageRequest;
+import com.xcodeassociated.commons.paging.SortDirection;
 import com.xcodeassociated.service.model.dto.EventDto;
 import com.xcodeassociated.service.model.dto.EventWithCategoryDto;
 import com.xcodeassociated.service.service.EventServiceCommand;
 import com.xcodeassociated.service.service.EventServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,16 +25,24 @@ public class EventControllerV1 {
     private final EventServiceQuery eventServiceQuery;
     private final EventServiceCommand eventServiceCommand;
 
-    @GetMapping()
-    public ResponseEntity<Flux<EventDto>> getAllEvents() {
-        log.info("Processing `getAllEvents` request in EventControllerV1");
-        return new ResponseEntity<>(this.eventServiceQuery.getAllEvents(), HttpStatus.OK);
+    @GetMapping("/paged")
+    public ResponseEntity<Flux<EventDto>> getAllEvents(@RequestParam(defaultValue = "1") int page,
+                                                       @RequestParam(defaultValue = "10") int size,
+                                                       @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                       @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        log.info("Processing `getAllEvents` request in EventControllerV1, pageable: {}", pageable);
+        return new ResponseEntity<>(this.eventServiceQuery.getAllEvents(pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/data")
-    public ResponseEntity<Flux<EventWithCategoryDto>> getAllEventsWithCategories() {
-        log.info("Processing `getAllEventsWithCategories` request in EventControllerV1");
-        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsWithCategories(), HttpStatus.OK);
+    @GetMapping("/data/paged")
+    public ResponseEntity<Flux<EventWithCategoryDto>> getAllEventsWithCategories(@RequestParam(defaultValue = "1") int page,
+                                                                                 @RequestParam(defaultValue = "10") int size,
+                                                                                 @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                                                 @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        log.info("Processing `getAllEventsWithCategories` request in EventControllerV1, pageable: {}", pageable);
+        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsWithCategories(pageable), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

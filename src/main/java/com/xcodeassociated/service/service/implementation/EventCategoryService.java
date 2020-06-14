@@ -3,11 +3,13 @@ package com.xcodeassociated.service.service.implementation;
 import com.xcodeassociated.service.model.EventCategory;
 import com.xcodeassociated.service.model.dto.EventCategoryDto;
 import com.xcodeassociated.service.repository.EventCategoryRepository;
+import com.xcodeassociated.service.repository.PageHelper;
 import com.xcodeassociated.service.service.EventCategoryCommand;
 import com.xcodeassociated.service.service.EventCategoryQuery;
 import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -31,9 +33,9 @@ public class EventCategoryService implements EventCategoryQuery, EventCategoryCo
     }
 
     @Override
-    public Flux<EventCategoryDto> getAllCategories() {
+    public Flux<EventCategoryDto> getAllCategories(Pageable pageable) {
         log.info("Getting all categories");
-        return this.eventCategoryRepository.findAll()
+        return PageHelper.apply(this.eventCategoryRepository.findAll(pageable.getSort()), pageable)
                 .map(EventCategory::toDto);
     }
 
