@@ -6,6 +6,7 @@ import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Document()
@@ -16,8 +17,8 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true)
 public class Location extends ComparableBaseDocument<Location> {
-    private Long latitude;
-    private Long longitude;
+    private BigDecimal latitude;
+    private BigDecimal longitude;
 
     public static Location fromDto(LocationDto dto) {
         return new Location().toBuilder()
