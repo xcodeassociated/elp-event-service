@@ -13,8 +13,6 @@ import java.util.Set;
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 @ToString(callSuper = true)
-public class UserDataWithCategoryDto extends BaseEntityDto {
-    private String userAuthID; // note: this value should be taken from user oauth token
-    private Set<EventCategoryDto> userPreferredCategories;
-    private Long maxDistance;
+public class UserDataWithCategoryDto extends UserDataDto {
+    private Set<EventCategoryDto> preferredCategories;
 }

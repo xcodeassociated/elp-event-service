@@ -59,18 +59,12 @@ public class UserDataService implements UserDataServiceQuery, UserDataServiceCom
 
     private UserDataWithCategoryDto getUserDataWithCategoryDto(UserData userData) {
         final List<EventCategory> eventCategories = this.eventCategoryRepository
-                .getEventCategoriesByIdIn(userData.getUserPreferredCategories().stream()
-                        .collect(Collectors.toList()))
+                .getEventCategoriesByIdIn(userData.getUserPreferredCategories()
+                        .stream().collect(Collectors.toList()))
                 .collectList()
                 .block();
 
-        return new UserDataWithCategoryDto().toBuilder()
-                .userAuthID(userData.getUserAuthID())
-                .maxDistance(userData.getMaxDistance())
-                .userPreferredCategories(eventCategories.stream()
-                        .map(EventCategory::toDto)
-                        .collect(Collectors.toSet()))
-                .build();
+        return userData.toDto(eventCategories.stream().collect(Collectors.toSet()));
     }
 
     private Mono<UserData> createUserDataFromDto(UserDataDto dto) {

@@ -23,7 +23,6 @@ public class TokenV1 {
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<String> whoami() {
         log.info("Processing `whoami` request in TokenV1");
-
         return new ResponseEntity<>(this.oauthAuditorService.getUsername(), HttpStatus.OK);
     }
 
@@ -31,7 +30,6 @@ public class TokenV1 {
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Set<String>> value() {
         log.info("Processing `value` request in TokenV1");
-
         return new ResponseEntity<>(this.oauthAuditorService.getUserRoles(), HttpStatus.OK);
     }
 
@@ -39,7 +37,6 @@ public class TokenV1 {
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<String> sub() {
         log.info("Processing `sub` request in TokenV1");
-
         return new ResponseEntity<>(this.oauthAuditorService.getUserSub(), HttpStatus.OK);
     }
 

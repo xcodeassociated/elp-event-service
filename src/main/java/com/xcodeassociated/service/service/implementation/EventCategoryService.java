@@ -44,6 +44,11 @@ public class EventCategoryService implements EventCategoryQuery, EventCategoryCo
                 .map(EventCategory::toDto);
     }
 
+    Flux<EventCategory> getEventCategoryByIdsDocuments(List<String> ids) {
+        log.info("Getting event documents categories by ids: {}", ids);
+        return this.eventCategoryRepository.getEventCategoriesByIdIn(ids);
+    }
+
     @Override
     public Mono<EventCategoryDto> saveCategory(EventCategoryDto dto) {
         log.info("Saving event category: {}", dto);

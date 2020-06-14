@@ -1,6 +1,7 @@
 package com.xcodeassociated.service.model;
 
 import com.xcodeassociated.service.model.dto.EventDto;
+import com.xcodeassociated.service.model.dto.EventWithCategoryDto;
 import com.xcodeassociated.service.model.helpers.CollectionsByValueComparator;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -36,7 +37,7 @@ public class Event extends ComparableBaseDocument<Event> {
 
     private Long stop;
 
-    private Set<EventCategory> eventCategories;
+    private Set<String> eventCategories;
 
     public static Event fromDto(EventDto dto) {
         return new Event().toBuilder()
@@ -45,9 +46,7 @@ public class Event extends ComparableBaseDocument<Event> {
                 .location(Location.fromDto(dto.getLocation()))
                 .start(dto.getStart())
                 .stop(dto.getStop())
-                .eventCategories(dto.getEventCategories().stream()
-                        .map(EventCategory::fromDto)
-                        .collect(Collectors.toSet()))
+                .eventCategories(dto.getEventCategories())
                 .build();
     }
 
@@ -58,7 +57,7 @@ public class Event extends ComparableBaseDocument<Event> {
                 && Objects.equals(this.location, other.getLocation())
                 && ObjectUtils.compare(this.start, other.getStart()) == 0
                 && ObjectUtils.compare(this.stop, other.getStop()) == 0
-                && CollectionsByValueComparator.areCollectionsSame(this.eventCategories, other.getEventCategories());
+                && this.eventCategories.equals(other.getEventCategories());
     }
 
     public Event update(EventDto dto) {
@@ -72,10 +71,8 @@ public class Event extends ComparableBaseDocument<Event> {
             this.location = newLocation;
         }
 
-        Set<EventCategory> newEventCategories = dto.getEventCategories().stream()
-                .map(EventCategory::fromDto)
-                .collect(Collectors.toSet());
-        if (!CollectionsByValueComparator.areCollectionsSame(this.eventCategories, newEventCategories)) {
+        Set<String> newEventCategories = dto.getEventCategories();
+        if (!this.eventCategories.equals(dto.getEventCategories())) {
             this.eventCategories.clear();
             this.eventCategories.addAll(newEventCategories);
         }
@@ -98,7 +95,27 @@ public class Event extends ComparableBaseDocument<Event> {
                 .description(this.description)
                 .location(Optional.ofNullable(this.location)
                         .map(Location::toDto).orElse(null))
-                .eventCategories(this.eventCategories.stream()
+                .eventCategories(this.eventCategories)
+                .build();
+    }
+
+    public EventWithCategoryDto toDto(Set<EventCategory> categories) {
+        return EventWithCategoryDto.builder()
+                .id(getId())
+                .uuid(getUuid())
+                .createdDate(this.getCreatedDate())
+                .version(this.getVersion())
+                .lastModifiedDate(this.getLastModifiedDate())
+                .createdBy(this.getCreatedBy())
+                .modifiedBy(this.getModifiedBy())
+                .title(this.title)
+                .start(this.start)
+                .stop(this.stop)
+                .description(this.description)
+                .location(Optional.ofNullable(this.location)
+                        .map(Location::toDto).orElse(null))
+                .eventCategories(this.eventCategories)
+                .categories(categories.stream()
                         .map(EventCategory::toDto)
                         .collect(Collectors.toSet()))
                 .build();

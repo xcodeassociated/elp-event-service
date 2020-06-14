@@ -3,6 +3,7 @@ package com.xcodeassociated.service.model;
 import com.xcodeassociated.service.exception.ServiceException;
 import com.xcodeassociated.service.exception.codes.ErrorCode;
 import com.xcodeassociated.service.model.dto.UserDataDto;
+import com.xcodeassociated.service.model.dto.UserDataWithCategoryDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.ObjectUtils;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Document()
 @Data
@@ -72,6 +74,24 @@ public class UserData extends ComparableBaseDocument<UserData> {
                 .modifiedBy(this.getModifiedBy())
                 .userAuthID(this.userAuthID)
                 .userPreferredCategories(this.userPreferredCategories)
+                .maxDistance(this.maxDistance)
+                .build();
+    }
+
+    public UserDataWithCategoryDto toDto(Set<EventCategory> categories) {
+        return UserDataWithCategoryDto.builder()
+                .id(getId())
+                .uuid(getUuid())
+                .createdDate(this.getCreatedDate())
+                .version(this.getVersion())
+                .lastModifiedDate(this.getLastModifiedDate())
+                .createdBy(this.getCreatedBy())
+                .modifiedBy(this.getModifiedBy())
+                .userAuthID(this.userAuthID)
+                .userPreferredCategories(this.userPreferredCategories)
+                .preferredCategories(categories.stream()
+                        .map(EventCategory::toDto)
+                        .collect(Collectors.toSet()))
                 .maxDistance(this.maxDistance)
                 .build();
     }

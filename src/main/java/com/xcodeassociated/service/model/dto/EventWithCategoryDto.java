@@ -13,11 +13,6 @@ import java.util.Set;
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 @ToString(callSuper = true)
-public class EventDto extends BaseEntityDto {
-    private String title;
-    private String description;
-    private LocationDto location;
-    private Long start;
-    private Long stop;
-    private Set<String> eventCategories;
+public class EventWithCategoryDto extends EventDto {
+    private Set<EventCategoryDto> categories;
 }
