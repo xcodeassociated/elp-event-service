@@ -1,6 +1,5 @@
 package com.xcodeassociated.service.model;
 
-import com.xcodeassociated.service.model.dto.EventCategoryDto;
 import com.xcodeassociated.service.model.dto.UserEventRecordDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -21,15 +20,15 @@ public class UserEventRecord extends ComparableBaseDocument<UserEventRecord> {
 
     @Indexed
     @NotNull(message = "User Auth Id title must not be null")
-    private String userAuthID;
+    private String userAuthId;
 
-    @NotNull(message = "Event must not be null")
-    private Event event;
+    @NotNull(message = "Event Id must not be null")
+    private String eventId;
 
     public static UserEventRecord fromDto(UserEventRecordDto dto) {
         return new UserEventRecord().toBuilder()
-                .userAuthID(dto.getUserAuthID())
-                .event(Event.fromDto(dto.getEvent()))
+                .userAuthId(dto.getUserAuthId())
+                .eventId(dto.getEventId())
                 .build();
     }
 
@@ -37,8 +36,8 @@ public class UserEventRecord extends ComparableBaseDocument<UserEventRecord> {
 
     @Override
     public boolean compare(UserEventRecord other) {
-        return StringUtils.equals(this.userAuthID, other.getUserAuthID())
-                && event.compare(other.getEvent());
+        return StringUtils.equals(this.userAuthId, other.getUserAuthId())
+                && StringUtils.equals(this.eventId, other.getEventId());
     }
 
     public UserEventRecordDto toDto() {
@@ -50,8 +49,8 @@ public class UserEventRecord extends ComparableBaseDocument<UserEventRecord> {
                 .lastModifiedDate(this.getLastModifiedDate())
                 .createdBy(this.getCreatedBy())
                 .modifiedBy(this.getModifiedBy())
-                .userAuthID(this.userAuthID)
-                .event(this.event.toDto())
+                .userAuthId(this.userAuthId)
+                .eventId(this.eventId)
                 .build();
     }
 }

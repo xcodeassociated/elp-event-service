@@ -2,7 +2,8 @@ package com.xcodeassociated.service.controller.rest;
 
 import com.xcodeassociated.service.model.dto.UserDataDto;
 import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
-import com.xcodeassociated.service.service.UserDataServiceInterface;
+import com.xcodeassociated.service.service.UserDataServiceCommand;
+import com.xcodeassociated.service.service.UserDataServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,14 +15,15 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @RequestMapping("/event/api/v1/user")
 public class UserDataControllerV1 {
-    private final UserDataServiceInterface userDataService;
+    private final UserDataServiceQuery userDataServiceQuery;
+    private final UserDataServiceCommand userDataServiceCommand;
     private final OauthAuditorServiceInterface oauthAuditorService;
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
     public Mono<UserDataDto> getUserDataByAuthId(@PathVariable String id) {
         log.info("Getting user data for auth id: {}", id);
-        return this.userDataService.getUserDataBuAuthId(id);
+        return this.userDataServiceQuery.getUserDataBuAuthId(id);
     }
 
     @GetMapping()
@@ -29,7 +31,7 @@ public class UserDataControllerV1 {
     public Mono<UserDataDto> getUserDataByToken() {
         String authId = this.oauthAuditorService.getUserSub();
         log.info("Getting user data for auth id: {}", authId);
-        return this.userDataService.getUserDataBuAuthId(authId);
+        return this.userDataServiceQuery.getUserDataBuAuthId(authId);
     }
 
     @PostMapping("/{id}")
@@ -38,7 +40,7 @@ public class UserDataControllerV1 {
         dto.setUserAuthID(id);
 
         log.info("Saving user data: {} for auth id: {}", dto, id);
-        return this.userDataService.saveUserData(dto);
+        return this.userDataServiceCommand.saveUserData(dto);
     }
 
     @PostMapping()
@@ -48,14 +50,14 @@ public class UserDataControllerV1 {
         dto.setUserAuthID(authId);
 
         log.info("Saving user data: {} for auth id: {}", dto, authId);
-        return this.userDataService.saveUserData(dto);
+        return this.userDataServiceCommand.saveUserData(dto);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
     public Mono<Void> deleteUserDataByAuthId(@PathVariable String id) {
         log.info("Deleting user data for auth id: {}", id);
-        return this.userDataService.deleteUserData(id);
+        return this.userDataServiceCommand.deleteUserData(id);
     }
 
     @DeleteMapping()
@@ -63,7 +65,7 @@ public class UserDataControllerV1 {
     public Mono<Void> deleteUserDataByToken(@RequestBody UserDataDto dto) {
         String authId = this.oauthAuditorService.getUserSub();
         log.info("Deleting user data for auth id: {}", authId);
-        return this.userDataService.deleteUserData(authId);
+        return this.userDataServiceCommand.deleteUserData(authId);
     }
 
 }

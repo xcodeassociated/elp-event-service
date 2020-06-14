@@ -4,7 +4,8 @@ import com.xcodeassociated.service.model.UserData;
 import com.xcodeassociated.service.model.dto.UserDataDto;
 import com.xcodeassociated.service.repository.UserDataRepository;
 import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
-import com.xcodeassociated.service.service.UserDataServiceInterface;
+import com.xcodeassociated.service.service.UserDataServiceCommand;
+import com.xcodeassociated.service.service.UserDataServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @Slf4j
 @Transactional
-public class UserDataService implements UserDataServiceInterface {
+public class UserDataService implements UserDataServiceQuery, UserDataServiceCommand {
     private final UserDataRepository userDataRepository;
     private final OauthAuditorServiceInterface oauthAuditorServiceInterface;
 

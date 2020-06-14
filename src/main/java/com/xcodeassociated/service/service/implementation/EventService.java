@@ -1,7 +1,6 @@
 package com.xcodeassociated.service.service.implementation;
 
 import com.xcodeassociated.service.exception.ObjectNotFoundException;
-import com.xcodeassociated.service.exception.ServiceException;
 import com.xcodeassociated.service.exception.codes.ErrorCode;
 import com.xcodeassociated.service.model.Event;
 import com.xcodeassociated.service.model.dto.EventDto;
@@ -10,10 +9,8 @@ import com.xcodeassociated.service.repository.EventTemplateRepository;
 import com.xcodeassociated.service.service.EventServiceCommand;
 import com.xcodeassociated.service.service.EventServiceQuery;
 import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
-import com.xcodeassociated.service.service.UserDataServiceInterface;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
@@ -30,7 +27,6 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     private final EventRepository eventRepository;
     private final EventTemplateRepository<Event> eventTemplateRepository;
     private final OauthAuditorServiceInterface oauthAuditorServiceInterface;
-    private final UserDataServiceInterface userDataService;
 
     @Override
     public Flux<EventDto> getAllEvents() {
