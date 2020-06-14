@@ -1,6 +1,7 @@
 package com.xcodeassociated.service.controller.rest;
 
 import com.xcodeassociated.service.model.dto.UserDataDto;
+import com.xcodeassociated.service.model.dto.UserDataWithCategoryDto;
 import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
 import com.xcodeassociated.service.service.UserDataServiceCommand;
 import com.xcodeassociated.service.service.UserDataServiceQuery;
@@ -23,7 +24,7 @@ public class UserDataControllerV1 {
     @PreAuthorize("hasRole('backend_service')")
     public Mono<UserDataDto> getUserDataByAuthId(@PathVariable String id) {
         log.info("Getting user data for auth id: {}", id);
-        return this.userDataServiceQuery.getUserDataBuAuthId(id);
+        return this.userDataServiceQuery.getUserDataByAuthId(id);
     }
 
     @GetMapping()
@@ -31,7 +32,22 @@ public class UserDataControllerV1 {
     public Mono<UserDataDto> getUserDataByToken() {
         String authId = this.oauthAuditorService.getUserSub();
         log.info("Getting user data for auth id: {}", authId);
-        return this.userDataServiceQuery.getUserDataBuAuthId(authId);
+        return this.userDataServiceQuery.getUserDataByAuthId(authId);
+    }
+
+    @GetMapping("/{id}/data")
+    @PreAuthorize("hasRole('backend_service')")
+    public Mono<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId(@PathVariable String id) {
+        log.info("Getting user data with category for auth id: {}", id);
+        return this.userDataServiceQuery.getUserDataWithCategoryByAuthId(id);
+    }
+
+    @GetMapping("/data")
+    @PreAuthorize("hasRole('backend_service')")
+    public Mono<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId() {
+        String authId = this.oauthAuditorService.getUserSub();
+        log.info("Getting user data with category for auth id: {}", authId);
+        return this.userDataServiceQuery.getUserDataWithCategoryByAuthId(authId);
     }
 
     @PostMapping("/{id}")
