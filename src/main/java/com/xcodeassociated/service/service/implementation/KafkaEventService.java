@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xcodeassociated.events.model.KafkaEvent;
 import com.xcodeassociated.events.model.KafkaEventType;
 import com.xcodeassociated.events.model.v1.SampleDataEventV1;
-import com.xcodeassociated.service.service.UserEventServiceInterface;
+import com.xcodeassociated.service.service.KafkaEventServiceInterface;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class UserEventService implements UserEventServiceInterface {
+public class KafkaEventService implements KafkaEventServiceInterface {
 
     @Override
     public void handleKafkaEvent(KafkaEvent event) {

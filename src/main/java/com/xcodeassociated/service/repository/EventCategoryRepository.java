@@ -7,9 +7,9 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface EventCategoryRepository extends BaseRepository<EventCategory, String> {
-    Flux<EventCategory> getAll();
-    Mono<EventCategory> getEventCategoryById(String id);
-    Flux<EventCategory> getEventCategoriesByIdIn(List<String> ids);
+    Flux<EventCategory> findAll();
+    Mono<EventCategory> findEventCategoryById(String id);
+    Flux<EventCategory> findEventCategoriesByIdIn(List<String> ids);
     Mono<EventCategory> save(EventCategory eventCategory);
     Mono<Void> deleteById(String id);
 }

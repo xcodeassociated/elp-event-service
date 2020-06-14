@@ -26,33 +26,33 @@ public class EventCategoryService implements EventCategoryQuery, EventCategoryCo
     @Override
     public Mono<EventCategoryDto> getEventCategoryById(String id) {
         log.info("Getting event category by id: {}", id);
-        return this.eventCategoryRepository.getEventCategoryById(id)
+        return this.eventCategoryRepository.findEventCategoryById(id)
                 .map(EventCategory::toDto);
     }
 
     @Override
     public Flux<EventCategoryDto> getAllCategories() {
         log.info("Getting all categories");
-        return this.eventCategoryRepository.getAll()
+        return this.eventCategoryRepository.findAll()
                 .map(EventCategory::toDto);
     }
 
     @Override
     public Flux<EventCategoryDto> getEventCategoryByIds(List<String> ids) {
         log.info("Getting event categories by ids: {}", ids);
-        return this.eventCategoryRepository.getEventCategoriesByIdIn(ids)
+        return this.eventCategoryRepository.findEventCategoriesByIdIn(ids)
                 .map(EventCategory::toDto);
     }
 
     Flux<EventCategory> getEventCategoryByIdsDocuments(List<String> ids) {
         log.info("Getting event documents categories by ids: {}", ids);
-        return this.eventCategoryRepository.getEventCategoriesByIdIn(ids);
+        return this.eventCategoryRepository.findEventCategoriesByIdIn(ids);
     }
 
     @Override
     public Mono<EventCategoryDto> saveCategory(EventCategoryDto dto) {
         log.info("Saving event category: {}", dto);
-        return this.eventCategoryRepository.getEventCategoryById(dto.getId())
+        return this.eventCategoryRepository.findEventCategoryById(dto.getId())
                 .switchIfEmpty(this.createUserDataFromDto(dto))
                 .map(e -> this.updateUserDataFromDto(e, dto))
                 .map(this.eventCategoryRepository::save)

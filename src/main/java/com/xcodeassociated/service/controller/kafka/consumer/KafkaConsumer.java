@@ -4,7 +4,7 @@ import com.xcodeassociated.events.model.KafkaEvent;
 import com.xcodeassociated.service.controller.kafka.KafkaConsumerInterface;
 import com.xcodeassociated.service.exception.ValidationException;
 import com.xcodeassociated.service.exception.codes.ErrorCode;
-import com.xcodeassociated.service.service.UserEventServiceInterface;
+import com.xcodeassociated.service.service.KafkaEventServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +24,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class KafkaConsumer implements KafkaConsumerInterface {
 
-    private final UserEventServiceInterface eventService;
+    private final KafkaEventServiceInterface eventService;
 
     @Override
     @KafkaListener(

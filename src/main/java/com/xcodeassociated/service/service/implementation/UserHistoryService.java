@@ -5,8 +5,8 @@ import com.xcodeassociated.service.model.dto.UserEventDto;
 import com.xcodeassociated.service.model.dto.UserEventRecordDto;
 import com.xcodeassociated.service.repository.EventRepository;
 import com.xcodeassociated.service.repository.UserEventRecordRepository;
-import com.xcodeassociated.service.service.UserEventRecordServiceCommand;
-import com.xcodeassociated.service.service.UserEventRecordServiceQuery;
+import com.xcodeassociated.service.service.UserHistoryServiceCommand;
+import com.xcodeassociated.service.service.UserHistoryServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @Slf4j
 @Transactional
-public class UserEventRecordService implements UserEventRecordServiceQuery, UserEventRecordServiceCommand {
+public class UserHistoryService implements UserHistoryServiceQuery, UserHistoryServiceCommand {
     private final UserEventRecordRepository userEventRecordRepository;
     private final EventRepository eventRepository;
 
@@ -38,50 +38,50 @@ public class UserEventRecordService implements UserEventRecordServiceQuery, User
     @Override
     public Mono<UserEventRecordDto> getUserEventRecordById(String id) {
         log.info("Getting user event record by id: {}", id);
-        return this.userEventRecordRepository.getUserEventRecordById(id)
+        return this.userEventRecordRepository.findUserEventRecordById(id)
                 .map(UserEventRecord::toDto);
     }
 
     @Override
     public Mono<UserEventDto> getUserEventById(String id) {
         log.info("Getting user event by id: {}", id);
-        return this.userEventRecordRepository.getUserEventRecordById(id)
+        return this.userEventRecordRepository.findUserEventRecordById(id)
                 .flatMap(this::getUserEventDto);
     }
 
     @Override
     public Flux<UserEventRecordDto> getUserEventRecordsByUserAuthId(String authId) {
         log.info("Getting user event record by user auth id: {}", authId);
-        return this.userEventRecordRepository.getUserEventRecordsByUserAuthId(authId)
+        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId)
                 .map(UserEventRecord::toDto);
     }
 
     @Override
     public Flux<UserEventDto> getUserEventsByUserAuthId(String authId) {
         log.info("Getting user events by user auth id: {}", authId);
-        return this.userEventRecordRepository.getUserEventRecordsByUserAuthId(authId)
+        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId)
                 .flatMap(this::getUserEventDto);
     }
 
     @Override
     public Flux<UserEventRecordDto> getUserEventRecordsByEventId(String eventId) {
         log.info("Getting user event record by event id: {}", eventId);
-        return this.userEventRecordRepository.getUserEventRecordsByEventId(eventId)
+        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId)
                 .map(UserEventRecord::toDto);
     }
 
     @Override
     public Flux<UserEventDto> getUserEventsByEventId(String eventId) {
         log.info("Getting user events by event id: {}", eventId);
-        return this.userEventRecordRepository.getUserEventRecordsByEventId(eventId)
+        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId)
                 .flatMap(this::getUserEventDto);
     }
 
     private Mono<UserEventDto> getUserEventDto(UserEventRecord record) {
         return this.eventRepository.findEventById(record.getEventId())
                 .map(e -> new UserEventDto().toBuilder()
-                .userAuthId(record.getUserAuthId())
-                .eventDto(e.toDto())
-                .build());
+                        .userAuthId(record.getUserAuthId())
+                        .eventDto(e.toDto())
+                        .build());
     }
 }

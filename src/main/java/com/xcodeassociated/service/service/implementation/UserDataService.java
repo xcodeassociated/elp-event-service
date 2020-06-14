@@ -30,21 +30,21 @@ public class UserDataService implements UserDataServiceQuery, UserDataServiceCom
     @Override
     public Mono<UserDataDto> getUserDataByAuthId(String authId) {
         log.info("Getting user data by auth id: {}", authId);
-        return this.userDataRepository.getUserDataByUserAuthID(authId)
+        return this.userDataRepository.findUserDataByUserAuthID(authId)
                 .map(UserData::toDto);
     }
 
     @Override
     public Mono<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId(String authId) {
         log.info("Getting user data with category by auth id: {}", authId);
-        return this.userDataRepository.getUserDataByUserAuthID(authId)
+        return this.userDataRepository.findUserDataByUserAuthID(authId)
                 .map(this::getUserDataWithCategoryDto);
     }
 
     @Override
     public Mono<UserDataDto> saveUserData(UserDataDto dto) {
         log.info("Save user data: {}", dto);
-       return this.userDataRepository.getUserDataByUserAuthID(dto.getUserAuthID())
+       return this.userDataRepository.findUserDataByUserAuthID(dto.getUserAuthID())
                .switchIfEmpty(this.createUserDataFromDto(dto))
                .map(e -> this.updateUserDataFromDto(e, dto))
                .map(this.userDataRepository::save)
@@ -59,7 +59,7 @@ public class UserDataService implements UserDataServiceQuery, UserDataServiceCom
 
     private UserDataWithCategoryDto getUserDataWithCategoryDto(UserData userData) {
         final List<EventCategory> eventCategories = this.eventCategoryRepository
-                .getEventCategoriesByIdIn(userData.getUserPreferredCategories()
+                .findEventCategoriesByIdIn(userData.getUserPreferredCategories()
                         .stream().collect(Collectors.toList()))
                 .collectList()
                 .block();

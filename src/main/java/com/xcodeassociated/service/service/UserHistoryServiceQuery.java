@@ -5,7 +5,7 @@ import com.xcodeassociated.service.model.dto.UserEventRecordDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface UserEventRecordServiceQuery {
+public interface UserHistoryServiceQuery {
     Mono<UserEventRecordDto> getUserEventRecordById(String id);
     Mono<UserEventDto> getUserEventById(String id);
     Flux<UserEventRecordDto> getUserEventRecordsByUserAuthId(String authId);

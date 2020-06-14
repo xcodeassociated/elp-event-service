@@ -83,7 +83,7 @@ public class EventControllerV1 {
         return new ResponseEntity<>(this.eventServiceQuery.getAllEventsCreatedBy(user), HttpStatus.OK);
     }
 
-    @GetMapping("/by/createdby/{user}")
+    @GetMapping("/by/createdby/{user}/date")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Flux<EventWithCategoryDto>> getEventsCreatedByWithCategories(@PathVariable String user) {
         log.info("Processing `getEventsCreatedByWithCategories` request in EventControllerV1, value: {}", user);
