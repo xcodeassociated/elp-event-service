@@ -9,6 +9,8 @@ import com.xcodeassociated.service.repository.EventRepository;
 import com.xcodeassociated.service.repository.EventTemplateRepository;
 import com.xcodeassociated.service.service.EventServiceCommand;
 import com.xcodeassociated.service.service.EventServiceQuery;
+import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
+import com.xcodeassociated.service.service.UserDataServiceInterface;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;
@@ -27,7 +29,8 @@ import reactor.core.publisher.Mono;
 public class EventService implements EventServiceQuery, EventServiceCommand {
     private final EventRepository eventRepository;
     private final EventTemplateRepository<Event> eventTemplateRepository;
-    private final AuditorAware<String> auditorProviderMongo;
+    private final OauthAuditorServiceInterface oauthAuditorServiceInterface;
+    private final UserDataServiceInterface userDataService;
 
     @Override
     public Flux<EventDto> getAllEvents() {
@@ -83,7 +86,7 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
 
     @Override
     public Mono<EventDto> createEvent(EventDto dto) {
-        String author = getModificationAuthor();
+        String author = this.oauthAuditorServiceInterface.getModificationAuthor();
         log.info("Creating event by: {},  with dto: {}", author, dto);
 
         final Event event = Event.fromDto(dto);
@@ -96,21 +99,14 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
 
     @Override
     public Mono<EventDto> updateEvent(EventDto dto) {
-        String author = getModificationAuthor();
+        String author = this.oauthAuditorServiceInterface.getModificationAuthor();
         log.info("Update by: {}, event with dto: {}", author, dto);
 
         return this.eventRepository.findEventById(dto.getId())
                 .switchIfEmpty(Mono.error(new ObjectNotFoundException(ErrorCode.E001, "id: " + dto.getId())))
                 .map(e -> {
-                    final Event newEvent = Event.fromDto(dto);
-                    if (!e.compare(newEvent)) {
-                        e.setTitle(newEvent.getTitle());
-                        e.setDescription(newEvent.getDescription());
-                        e.setLocation(newEvent.getLocation());
-
-                        e.setModifiedBy(author);
-                    }
-                    return e;
+                    e.setModifiedBy(author);
+                    return e.update(dto);
                 })
                 .map(this.eventRepository::save)
                 .flatMap(e -> e.map(Event::toDto));
@@ -121,11 +117,6 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
         log.info("Deleting event by id: {}", id);
 
         return this.eventRepository.deleteById(id);
-    }
-
-    private String getModificationAuthor() {
-        return auditorProviderMongo.getCurrentAuditor()
-                .orElseThrow(() -> new ServiceException(ErrorCode.E002, "Cannot retrieve update author information"));
     }
 
 }

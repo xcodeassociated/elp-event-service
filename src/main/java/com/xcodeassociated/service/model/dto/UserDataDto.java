@@ -14,7 +14,7 @@ import java.util.Set;
 @SuperBuilder(toBuilder = true)
 @ToString(callSuper = true)
 public class UserDataDto extends BaseEntityDto {
-    private String userAuthID;
+    private String userAuthID; // note: this value should be taken from user oauth token
     private Set<EventCategoryDto> userPreferredCategories;
     private Long maxDistance;
 }
