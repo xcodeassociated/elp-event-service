@@ -5,9 +5,11 @@ import com.xcodeassociated.service.exception.codes.ErrorCode;
 import com.xcodeassociated.service.model.Event;
 import com.xcodeassociated.service.model.EventCategory;
 import com.xcodeassociated.service.model.dto.EventDto;
+import com.xcodeassociated.service.model.dto.EventSearchDto;
 import com.xcodeassociated.service.model.dto.EventWithCategoryDto;
+import com.xcodeassociated.service.model.dto.LocationDto;
 import com.xcodeassociated.service.repository.EventRepository;
-import com.xcodeassociated.service.repository.EventTemplateRepository;
+import com.xcodeassociated.service.repository.ReactiveTemplateRepository;
 import com.xcodeassociated.service.repository.PageHelper;
 import com.xcodeassociated.service.service.EventServiceCommand;
 import com.xcodeassociated.service.service.EventServiceQuery;
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -44,7 +47,7 @@ class EventWrapper {
 @Transactional
 public class EventService implements EventServiceQuery, EventServiceCommand {
     private final EventRepository eventRepository;
-    private final EventTemplateRepository<Event> eventTemplateRepository;
+    private final ReactiveTemplateRepository<Event> reactiveTemplateRepository;
     private final OauthAuditorServiceInterface oauthAuditorServiceInterface;
     private final EventCategoryService eventCategoryService;
 
@@ -61,6 +64,19 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
         return PageHelper.apply(this.eventRepository.findAll(pageable.getSort()), pageable)
                 .map(this::toEventWrapper)
                 .map(e -> e.getEvent().toDto(e.getEventCategories()));
+    }
+
+    public Flux<EventDto> getAllEventsByQuery(EventSearchDto dto) {
+        log.info("Getting all events by search dto: {}", dto);
+        double minDistance = 0;
+        Double maxDistance = dto.getRange();
+        LocationDto location = dto.getLocation();
+        BasicQuery eventQuery = new BasicQuery("{geoLocation:{ $near: { $geometry: { type: 'Point', coordinates: " +
+                "[" + location.getLatitude() + "," + location.getLongitude() + " ] }, " +
+                "$minDistance: " + minDistance + ", $maxDistance: " + maxDistance + "}}}");
+
+        Flux<Event> foundEvents = this.reactiveTemplateRepository.findAllEventsByQuery(eventQuery, Event.class);
+
     }
 
     @Override

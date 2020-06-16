@@ -1,7 +1,7 @@
 package com.xcodeassociated.service.repository.implementation;
 
 import com.xcodeassociated.service.model.BaseDocument;
-import com.xcodeassociated.service.repository.EventTemplateRepository;
+import com.xcodeassociated.service.repository.ReactiveTemplateRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 @Repository
 @AllArgsConstructor
-public class EventTemplate<T extends BaseDocument> implements EventTemplateRepository<T> {
+public class ReactiveTemplate<T extends BaseDocument> implements ReactiveTemplateRepository<T> {
 
     final ReactiveMongoTemplate reactiveMongoTemplate;
 

@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface EventTemplateRepository<T extends BaseDocument> {
+public interface ReactiveTemplateRepository<T extends BaseDocument> {
     Mono<T> findEventByQuery(Query query, Class<T> cls);
     Flux<T> findAllEventsByQuery(Query query, Class<T> cls);
 }
