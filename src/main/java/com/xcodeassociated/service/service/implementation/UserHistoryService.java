@@ -4,13 +4,11 @@ import com.xcodeassociated.service.model.UserEventRecord;
 import com.xcodeassociated.service.model.dto.UserEventDto;
 import com.xcodeassociated.service.model.dto.UserEventRecordDto;
 import com.xcodeassociated.service.repository.EventRepository;
-import com.xcodeassociated.service.repository.PageHelper;
 import com.xcodeassociated.service.repository.UserEventRecordRepository;
 import com.xcodeassociated.service.service.UserHistoryServiceCommand;
 import com.xcodeassociated.service.service.UserHistoryServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -52,30 +50,30 @@ public class UserHistoryService implements UserHistoryServiceQuery, UserHistoryS
     }
 
     @Override
-    public Flux<UserEventRecordDto> getUserEventRecordsByUserAuthId(String authId, Pageable pageable) {
-        log.info("Getting user event record by user auth id: {}, pageable: {}", authId, pageable);
-        return PageHelper.apply(this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId, pageable.getSort()), pageable)
+    public Flux<UserEventRecordDto> getUserEventRecordsByUserAuthId(String authId) {
+        log.info("Getting user event record by user auth id: {}", authId);
+        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId)
                 .map(UserEventRecord::toDto);
     }
 
     @Override
-    public Flux<UserEventDto> getUserEventsByUserAuthId(String authId, Pageable pageable) {
-        log.info("Getting user events by user auth id: {}, pageable: {}", authId, pageable);
-        return PageHelper.apply(this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId, pageable.getSort()), pageable)
+    public Flux<UserEventDto> getUserEventsByUserAuthId(String authId) {
+        log.info("Getting user events by user auth id: {}", authId);
+        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId)
                 .flatMap(this::getUserEventDto);
     }
 
     @Override
-    public Flux<UserEventRecordDto> getUserEventRecordsByEventId(String eventId, Pageable pageable) {
-        log.info("Getting user event record by event id: {}, pageable: {}", eventId, pageable);
-        return PageHelper.apply(this.userEventRecordRepository.findUserEventRecordsByEventId(eventId, pageable.getSort()), pageable)
+    public Flux<UserEventRecordDto> getUserEventRecordsByEventId(String eventId) {
+        log.info("Getting user event record by event id: {}", eventId);
+        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId)
                 .map(UserEventRecord::toDto);
     }
 
     @Override
-    public Flux<UserEventDto> getUserEventsByEventId(String eventId, Pageable pageable) {
-        log.info("Getting user events by event id: {}, pageable: {}", eventId, pageable);
-        return PageHelper.apply(this.userEventRecordRepository.findUserEventRecordsByEventId(eventId, pageable.getSort()), pageable)
+    public Flux<UserEventDto> getUserEventsByEventId(String eventId) {
+        log.info("Getting user events by event id: {}", eventId);
+        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId)
                 .flatMap(this::getUserEventDto);
     }
 

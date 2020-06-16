@@ -10,7 +10,6 @@ import com.xcodeassociated.service.model.dto.EventWithCategoryDto;
 import com.xcodeassociated.service.model.dto.LocationDto;
 import com.xcodeassociated.service.repository.EventRepository;
 import com.xcodeassociated.service.repository.ReactiveTemplateRepository;
-import com.xcodeassociated.service.repository.PageHelper;
 import com.xcodeassociated.service.service.EventServiceCommand;
 import com.xcodeassociated.service.service.EventServiceQuery;
 import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
@@ -21,7 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,16 +50,17 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     private final EventCategoryService eventCategoryService;
 
     @Override
-    public Flux<EventDto> getAllEvents(Pageable pageable) {
+    public Flux<EventDto> getAllEvents() {
         log.info("Getting all events");
-        return PageHelper.apply(this.eventRepository.findAll(pageable.getSort()), pageable)
+        return this.eventRepository
+                .findAll()
                 .map(Event::toDto);
     }
 
     @Override
-    public Flux<EventWithCategoryDto> getAllEventsWithCategories(Pageable pageable) {
+    public Flux<EventWithCategoryDto> getAllEventsWithCategories() {
         log.info("Getting all events with categories");
-        return PageHelper.apply(this.eventRepository.findAll(pageable.getSort()), pageable)
+        return this.eventRepository.findAll()
                 .map(this::toEventWrapper)
                 .map(e -> e.getEvent().toDto(e.getEventCategories()));
     }
@@ -75,8 +74,8 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
                 "[" + location.getLatitude() + "," + location.getLongitude() + " ] }, " +
                 "$minDistance: " + minDistance + ", $maxDistance: " + maxDistance + "}}}");
 
-        Flux<Event> foundEvents = this.reactiveTemplateRepository.findAllEventsByQuery(eventQuery, Event.class);
-
+        return this.reactiveTemplateRepository.findAllEventsByQuery(eventQuery, Event.class)
+                .map(Event::toDto);
     }
 
     @Override

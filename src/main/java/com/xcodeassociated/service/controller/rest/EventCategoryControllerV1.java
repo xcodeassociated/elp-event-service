@@ -1,13 +1,10 @@
 package com.xcodeassociated.service.controller.rest;
 
-import com.xcodeassociated.commons.paging.CustomPageRequest;
-import com.xcodeassociated.commons.paging.SortDirection;
 import com.xcodeassociated.service.model.dto.EventCategoryDto;
 import com.xcodeassociated.service.service.EventCategoryCommand;
 import com.xcodeassociated.service.service.EventCategoryQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -23,15 +20,11 @@ public class EventCategoryControllerV1 {
     private final EventCategoryQuery eventCategoryQuery;
     private final EventCategoryCommand eventCategoryCommand;
 
-    @GetMapping("/paged")
+    @GetMapping()
     @PreAuthorize("hasRole('backend_service')")
-    public Flux<EventCategoryDto> getAll(@RequestParam(defaultValue = "1") int page,
-                                         @RequestParam(defaultValue = "10") int size,
-                                         @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
-                                         @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
-        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
-        log.info("Getting all categories, pageable: {}", pageable);
-        return this.eventCategoryQuery.getAllCategories(pageable);
+    public Flux<EventCategoryDto> getAll() {
+        log.info("Getting all categories");
+        return this.eventCategoryQuery.getAllCategories();
     }
 
     @GetMapping("/{id}")
