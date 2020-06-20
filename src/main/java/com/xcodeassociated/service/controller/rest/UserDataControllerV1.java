@@ -7,9 +7,10 @@ import com.xcodeassociated.service.service.UserDataServiceCommand;
 import com.xcodeassociated.service.service.UserDataServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 @Slf4j
 @RestController
@@ -22,66 +23,68 @@ public class UserDataControllerV1 {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
-    public Mono<UserDataDto> getUserDataByAuthId(@PathVariable String id) {
+    public ResponseEntity<UserDataDto> getUserDataByAuthId(@PathVariable String id) {
         log.info("Getting user data for auth id: {}", id);
-        return this.userDataServiceQuery.getUserDataByAuthId(id);
+        return new ResponseEntity<>(this.userDataServiceQuery.getUserDataByAuthId(id), HttpStatus.OK);
     }
 
     @GetMapping()
     @PreAuthorize("hasRole('backend_service')")
-    public Mono<UserDataDto> getUserDataByToken() {
+    public ResponseEntity<UserDataDto> getUserDataByToken() {
         String authId = this.oauthAuditorService.getUserSub();
         log.info("Getting user data for auth id: {}", authId);
-        return this.userDataServiceQuery.getUserDataByAuthId(authId);
+        return new ResponseEntity<>(this.userDataServiceQuery.getUserDataByAuthId(authId), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/data")
     @PreAuthorize("hasRole('backend_service')")
-    public Mono<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId(@PathVariable String id) {
+    public ResponseEntity<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId(@PathVariable String id) {
         log.info("Getting user data with category for auth id: {}", id);
-        return this.userDataServiceQuery.getUserDataWithCategoryByAuthId(id);
+        return new ResponseEntity<>(this.userDataServiceQuery.getUserDataWithCategoryByAuthId(id), HttpStatus.OK);
     }
 
     @GetMapping("/data")
     @PreAuthorize("hasRole('backend_service')")
-    public Mono<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId() {
+    public ResponseEntity<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId() {
         String authId = this.oauthAuditorService.getUserSub();
         log.info("Getting user data with category for auth id: {}", authId);
-        return this.userDataServiceQuery.getUserDataWithCategoryByAuthId(authId);
+        return new ResponseEntity<>(this.userDataServiceQuery.getUserDataWithCategoryByAuthId(authId), HttpStatus.OK);
     }
 
     @PostMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
-    public Mono<UserDataDto> saveUserDataByAuthId(@PathVariable String id, @RequestBody UserDataDto dto) {
+    public ResponseEntity<UserDataDto> saveUserDataByAuthId(@PathVariable String id, @RequestBody UserDataDto dto) {
         dto.setUserAuthID(id);
 
         log.info("Saving user data: {} for auth id: {}", dto, id);
-        return this.userDataServiceCommand.saveUserData(dto);
+        return new ResponseEntity<>(this.userDataServiceCommand.saveUserData(dto), HttpStatus.OK);
     }
 
     @PostMapping()
     @PreAuthorize("hasRole('backend_service')")
-    public Mono<UserDataDto> saveUserDataByToken(@RequestBody UserDataDto dto) {
+    public ResponseEntity<UserDataDto> saveUserDataByToken(@RequestBody UserDataDto dto) {
         String authId = this.oauthAuditorService.getUserSub();
         dto.setUserAuthID(authId);
 
         log.info("Saving user data: {} for auth id: {}", dto, authId);
-        return this.userDataServiceCommand.saveUserData(dto);
+        return new ResponseEntity<>(this.userDataServiceCommand.saveUserData(dto), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
-    public Mono<Void> deleteUserDataByAuthId(@PathVariable String id) {
+    public ResponseEntity<Void> deleteUserDataByAuthId(@PathVariable String id) {
         log.info("Deleting user data for auth id: {}", id);
-        return this.userDataServiceCommand.deleteUserData(id);
+        this.userDataServiceCommand.deleteUserData(id);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping()
     @PreAuthorize("hasRole('backend_service')")
-    public Mono<Void> deleteUserDataByToken(@RequestBody UserDataDto dto) {
+    public ResponseEntity<Void> deleteUserDataByToken(@RequestBody UserDataDto dto) {
         String authId = this.oauthAuditorService.getUserSub();
         log.info("Deleting user data for auth id: {}", authId);
-        return this.userDataServiceCommand.deleteUserData(authId);
+        this.userDataServiceCommand.deleteUserData(authId);
+        return ResponseEntity.ok().build();
     }
 
 }

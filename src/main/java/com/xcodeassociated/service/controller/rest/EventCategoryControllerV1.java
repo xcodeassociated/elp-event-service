@@ -5,10 +5,10 @@ import com.xcodeassociated.service.service.EventCategoryCommand;
 import com.xcodeassociated.service.service.EventCategoryQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -22,36 +22,37 @@ public class EventCategoryControllerV1 {
 
     @GetMapping()
     @PreAuthorize("hasRole('backend_service')")
-    public Flux<EventCategoryDto> getAll() {
+    public ResponseEntity<List<EventCategoryDto>> getAll() {
         log.info("Getting all categories");
-        return this.eventCategoryQuery.getAllCategories();
+        return new ResponseEntity<>(this.eventCategoryQuery.getAllCategories(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
-    public Mono<EventCategoryDto> getEventCategoryById(@PathVariable String id) {
+    public ResponseEntity<EventCategoryDto> getEventCategoryById(@PathVariable String id) {
         log.info("Getting category by id: {}", id);
-        return this.eventCategoryQuery.getEventCategoryById(id);
+        return new ResponseEntity<>(this.eventCategoryQuery.getEventCategoryById(id), HttpStatus.OK);
     }
 
     @GetMapping("/{ids}")
     @PreAuthorize("hasRole('backend_service')")
-    public Flux<EventCategoryDto> getEventCategoryByIds(@PathVariable String[] ids) {
+    public ResponseEntity<List<EventCategoryDto>> getEventCategoryByIds(@PathVariable String[] ids) {
         log.info("Getting categories for ids: {}", List.of(ids));
-        return this.eventCategoryQuery.getEventCategoryByIds(List.of(ids));
+        return new ResponseEntity<>(this.eventCategoryQuery.getEventCategoryByIds(List.of(ids)), HttpStatus.OK);
     }
 
     @PostMapping()
     @PreAuthorize("hasRole('backend_service')")
-    public Mono<EventCategoryDto> saveCategory(@RequestBody EventCategoryDto dto) {
+    public ResponseEntity<EventCategoryDto> saveCategory(@RequestBody EventCategoryDto dto) {
         log.info("Saving category: {}", dto);
-        return this.eventCategoryCommand.saveCategory(dto);
+        return new ResponseEntity<>(this.eventCategoryCommand.saveCategory(dto), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
-    public Mono<Void> deleteCategoryById(@PathVariable String id) {
+    public ResponseEntity<Void> deleteCategoryById(@PathVariable String id) {
         log.info("Deleting category: {}", id);
-        return this.eventCategoryCommand.deleteCategoryById(id);
+        this.eventCategoryCommand.deleteCategoryById(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,5 +1,7 @@
 package com.xcodeassociated.service.service.implementation;
 
+import com.xcodeassociated.service.exception.ServiceException;
+import com.xcodeassociated.service.exception.codes.ErrorCode;
 import com.xcodeassociated.service.model.EventCategory;
 import com.xcodeassociated.service.model.dto.EventCategoryDto;
 import com.xcodeassociated.service.repository.EventCategoryRepository;
@@ -10,10 +12,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -24,52 +26,55 @@ public class EventCategoryService implements EventCategoryQuery, EventCategoryCo
     private final OauthAuditorServiceInterface oauthAuditorServiceInterface;
 
     @Override
-    public Mono<EventCategoryDto> getEventCategoryById(String id) {
+    public EventCategoryDto getEventCategoryById(String id) {
         log.info("Getting event category by id: {}", id);
         return this.eventCategoryRepository.findEventCategoryById(id)
-                .map(EventCategory::toDto);
+                .map(EventCategory::toDto)
+                .orElseThrow(() -> new ServiceException(ErrorCode.S000, ""));
     }
 
     @Override
-    public Flux<EventCategoryDto> getAllCategories() {
+    public List<EventCategoryDto> getAllCategories() {
         log.info("Getting all categories");
-        return this.eventCategoryRepository.findAll()
-                .map(EventCategory::toDto);
+        return this.eventCategoryRepository.findAll().stream()
+                .map(EventCategory::toDto).collect(Collectors.toList());
     }
 
     @Override
-    public Flux<EventCategoryDto> getEventCategoryByIds(List<String> ids) {
+    public List<EventCategoryDto> getEventCategoryByIds(List<String> ids) {
         log.info("Getting event categories by ids: {}", ids);
-        return this.eventCategoryRepository.findEventCategoriesByIdIn(ids)
-                .map(EventCategory::toDto);
+        return this.eventCategoryRepository.findEventCategoryByIdIn(ids).stream()
+                .map(EventCategory::toDto).collect(Collectors.toList());
     }
 
-    Flux<EventCategory> getEventCategoryByIdsDocuments(List<String> ids) {
+    public List<EventCategory> getEventCategoryByIdsDocuments(List<String> ids) {
         log.info("Getting event documents categories by ids: {}", ids);
-        return this.eventCategoryRepository.findEventCategoriesByIdIn(ids);
+        return this.eventCategoryRepository.findEventCategoryByIdIn(ids);
     }
 
     @Override
-    public Mono<EventCategoryDto> saveCategory(EventCategoryDto dto) {
+    public EventCategoryDto saveCategory(EventCategoryDto dto) {
         log.info("Saving event category: {}", dto);
-        return this.eventCategoryRepository.findEventCategoryById(dto.getId())
-                .switchIfEmpty(this.createUserDataFromDto(dto))
+        return Stream.of(this.eventCategoryRepository.findEventCategoryById(dto.getId())
+                .orElse(this.createUserDataFromDto(dto)))
                 .map(e -> this.updateUserDataFromDto(e, dto))
                 .map(this.eventCategoryRepository::save)
-                .flatMap(e -> e.map(EventCategory::toDto));
+                .map(EventCategory::toDto)
+                .findFirst()
+                .get();
     }
 
     @Override
-    public Mono<Void> deleteCategoryById(String id) {
+    public void deleteCategoryById(String id) {
         log.info("Deleting event category by id: {}", id);
-        return this.eventCategoryRepository.deleteById(id);
+        this.eventCategoryRepository.deleteById(id);
     }
 
-    private Mono<EventCategory> createUserDataFromDto(EventCategoryDto dto) {
+    private EventCategory createUserDataFromDto(EventCategoryDto dto) {
         final String modificationAuthor = this.oauthAuditorServiceInterface.getModificationAuthor();
         final EventCategory eventCategory = EventCategory.fromDto(dto);
         eventCategory.setModifiedBy(modificationAuthor);
-        return Mono.just(eventCategory);
+        return eventCategory;
     }
 
     private EventCategory updateUserDataFromDto(EventCategory eventCategory, EventCategoryDto dto) {

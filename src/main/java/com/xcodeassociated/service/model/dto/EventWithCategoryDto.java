@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Set;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -14,5 +14,5 @@ import java.util.Set;
 @SuperBuilder(toBuilder = true)
 @ToString(callSuper = true)
 public class EventWithCategoryDto extends EventDto {
-    private Set<EventCategoryDto> categories;
+    private List<EventCategoryDto> categories;
 }

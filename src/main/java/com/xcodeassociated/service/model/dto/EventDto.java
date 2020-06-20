@@ -16,7 +16,7 @@ import java.util.Set;
 public class EventDto extends BaseEntityDto {
     private String title;
     private String description;
-    private LocationDto location;
+    private Double[] location;
     private Long start;
     private Long stop;
     private Set<String> eventCategories;

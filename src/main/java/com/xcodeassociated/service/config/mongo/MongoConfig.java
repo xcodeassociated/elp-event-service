@@ -1,24 +1,40 @@
 package com.xcodeassociated.service.config.mongo;
 
+import com.mongodb.MongoClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
-import org.springframework.data.mongodb.ReactiveMongoTransactionManager;
-import org.springframework.transaction.ReactiveTransactionManager;
-import org.springframework.transaction.reactive.TransactionalOperator;
+import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.data.mongodb.MongoTransactionManager;
+import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 
 @Profile("!test")
 @Configuration
-public class MongoConfig {
-    @Bean
-    ReactiveTransactionManager reactiveTransactionManager(ReactiveMongoDatabaseFactory databaseFactory) {
-        return new ReactiveMongoTransactionManager(databaseFactory);
-    }
+public class MongoConfig extends AbstractMongoConfiguration {
+
+    @Value("${spring.data.mongodb.database}")
+    private String db;
+
+    @Value("${spring.data.mongodb.host}")
+    private String host;
+
+    @Value("${spring.data.mongodb.port}")
+    private String port;
 
     @Bean
-    TransactionalOperator transactionalOperator(ReactiveTransactionManager reactiveTransactionManager) {
-        return TransactionalOperator.create(reactiveTransactionManager);
+    MongoTransactionManager transactionManager(MongoDbFactory dbFactory) {
+        return new MongoTransactionManager(dbFactory);
     }
 
+    @Override
+    protected String getDatabaseName() {
+        return db;
+    }
+
+    @Override
+    public MongoClient mongoClient() {
+        return new MongoClient(host, Integer.parseInt(port));
+    }
 }
+

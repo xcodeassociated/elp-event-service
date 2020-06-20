@@ -1,5 +1,7 @@
 package com.xcodeassociated.service.service.implementation;
 
+import com.xcodeassociated.service.exception.ServiceException;
+import com.xcodeassociated.service.exception.codes.ErrorCode;
 import com.xcodeassociated.service.model.EventCategory;
 import com.xcodeassociated.service.model.UserData;
 import com.xcodeassociated.service.model.dto.UserDataDto;
@@ -13,10 +15,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -28,50 +30,52 @@ public class UserDataService implements UserDataServiceQuery, UserDataServiceCom
     private final OauthAuditorServiceInterface oauthAuditorServiceInterface;
 
     @Override
-    public Mono<UserDataDto> getUserDataByAuthId(String authId) {
+    public UserDataDto getUserDataByAuthId(String authId) {
         log.info("Getting user data by auth id: {}", authId);
         return this.userDataRepository.findUserDataByUserAuthID(authId)
-                .map(UserData::toDto);
+                .map(UserData::toDto)
+                .orElseThrow(() -> new ServiceException(ErrorCode.S000, ""));
     }
 
     @Override
-    public Mono<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId(String authId) {
+    public UserDataWithCategoryDto getUserDataWithCategoryByAuthId(String authId) {
         log.info("Getting user data with category by auth id: {}", authId);
         return this.userDataRepository.findUserDataByUserAuthID(authId)
-                .map(this::getUserDataWithCategoryDto);
+                .map(this::getUserDataWithCategoryDto)
+                .orElseThrow(() -> new ServiceException(ErrorCode.S000, ""));
     }
 
     @Override
-    public Mono<UserDataDto> saveUserData(UserDataDto dto) {
+    public UserDataDto saveUserData(UserDataDto dto) {
         log.info("Save user data: {}", dto);
-       return this.userDataRepository.findUserDataByUserAuthID(dto.getUserAuthID())
-               .switchIfEmpty(this.createUserDataFromDto(dto))
+       return Stream.of(this.userDataRepository.findUserDataByUserAuthID(dto.getUserAuthID())
+               .orElse(this.createUserDataFromDto(dto)))
                .map(e -> this.updateUserDataFromDto(e, dto))
                .map(this.userDataRepository::save)
-               .flatMap(e -> e.map(UserData::toDto));
+               .map(UserData::toDto)
+               .findFirst()
+               .get();
     }
 
     @Override
-    public Mono<Void> deleteUserData(String authId) {
+    public void deleteUserData(String authId) {
         log.info("Delete user data by auth id: {}", authId);
-        return this.userDataRepository.deleteByUserAuthID(authId);
+        this.userDataRepository.deleteByUserAuthID(authId);
     }
 
     private UserDataWithCategoryDto getUserDataWithCategoryDto(UserData userData) {
         final List<EventCategory> eventCategories = this.eventCategoryRepository
-                .findEventCategoriesByIdIn(userData.getUserPreferredCategories()
-                        .stream().collect(Collectors.toList()))
-                .collectList()
-                .block();
+                .findEventCategoryByIdIn(userData.getUserPreferredCategories()
+                        .stream().collect(Collectors.toList()));
 
         return userData.toDto(eventCategories.stream().collect(Collectors.toSet()));
     }
 
-    private Mono<UserData> createUserDataFromDto(UserDataDto dto) {
+    private UserData createUserDataFromDto(UserDataDto dto) {
         final String modificationAuthor = this.oauthAuditorServiceInterface.getModificationAuthor();
         final UserData userData = UserData.fromDto(dto);
         userData.setModifiedBy(modificationAuthor);
-        return Mono.just(userData);
+        return userData;
     }
 
     private UserData updateUserDataFromDto(UserData userData, UserDataDto dto) {

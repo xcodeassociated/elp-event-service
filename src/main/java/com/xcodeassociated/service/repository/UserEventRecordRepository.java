@@ -1,13 +1,14 @@
 package com.xcodeassociated.service.repository;
 
 import com.xcodeassociated.service.model.UserEventRecord;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface UserEventRecordRepository extends BaseRepository<UserEventRecord, String> {
-    Mono<UserEventRecord> findUserEventRecordById(String id);
-    Flux<UserEventRecord> findUserEventRecordsByUserAuthId(String authId);
-    Flux<UserEventRecord> findUserEventRecordsByEventId(String authId);
-    Mono<UserEventRecord> save(UserEventRecord userEventRecord);
-    Mono<Void> deleteById(String id);
+    Optional<UserEventRecord> findUserEventRecordById(String id);
+    List<UserEventRecord> findUserEventRecordsByUserAuthId(String authId);
+    List<UserEventRecord> findUserEventRecordsByEventId(String authId);
+    UserEventRecord save(UserEventRecord userEventRecord);
+    void deleteById(String id);
 }

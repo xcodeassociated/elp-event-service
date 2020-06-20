@@ -15,7 +15,7 @@ import java.util.Set;
 @ToString(callSuper = true)
 public class EventSearchDto extends BaseEntityDto {
     private String title;
-    private LocationDto location;
+    private Double[] location;
     private Double range;
     private Long start;
     private Long stop;

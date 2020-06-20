@@ -1,5 +1,7 @@
 package com.xcodeassociated.service.service.implementation;
 
+import com.xcodeassociated.service.exception.ServiceException;
+import com.xcodeassociated.service.exception.codes.ErrorCode;
 import com.xcodeassociated.service.model.UserEventRecord;
 import com.xcodeassociated.service.model.dto.UserEventDto;
 import com.xcodeassociated.service.model.dto.UserEventRecordDto;
@@ -11,8 +13,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -23,65 +27,73 @@ public class UserHistoryService implements UserHistoryServiceQuery, UserHistoryS
     private final EventRepository eventRepository;
 
     @Override
-    public Mono<UserEventRecordDto> registerUserEventRecord(UserEventRecordDto dto) {
+    public UserEventRecordDto registerUserEventRecord(UserEventRecordDto dto) {
         log.info("Registering user event record: {}", dto);
-        return this.userEventRecordRepository.save(UserEventRecord.fromDto(dto))
-                .map(UserEventRecord::toDto);
+        return Optional.of(this.userEventRecordRepository.save(UserEventRecord.fromDto(dto)))
+                .map(UserEventRecord::toDto)
+                .orElseThrow(() -> new ServiceException(ErrorCode.S000, ""));
     }
 
     @Override
-    public Mono<Void> deleteUserEventRecord(String id) {
+    public void deleteUserEventRecord(String id) {
         log.info("Deleting user event record by id: {}", id);
-        return this.userEventRecordRepository.deleteById(id);
+        this.userEventRecordRepository.deleteById(id);
     }
 
     @Override
-    public Mono<UserEventRecordDto> getUserEventRecordById(String id) {
+    public UserEventRecordDto getUserEventRecordById(String id) {
         log.info("Getting user event record by id: {}", id);
         return this.userEventRecordRepository.findUserEventRecordById(id)
-                .map(UserEventRecord::toDto);
+                .map(UserEventRecord::toDto)
+                .orElseThrow(() -> new ServiceException(ErrorCode.S000, ""));
     }
 
     @Override
-    public Mono<UserEventDto> getUserEventById(String id) {
+    public UserEventDto getUserEventById(String id) {
         log.info("Getting user event by id: {}", id);
         return this.userEventRecordRepository.findUserEventRecordById(id)
-                .flatMap(this::getUserEventDto);
+                .map(this::getUserEventDto)
+                .orElseThrow(() -> new ServiceException(ErrorCode.S000, ""));
     }
 
     @Override
-    public Flux<UserEventRecordDto> getUserEventRecordsByUserAuthId(String authId) {
+    public List<UserEventRecordDto> getUserEventRecordsByUserAuthId(String authId) {
         log.info("Getting user event record by user auth id: {}", authId);
-        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId)
-                .map(UserEventRecord::toDto);
+        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId).stream()
+                .map(UserEventRecord::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Flux<UserEventDto> getUserEventsByUserAuthId(String authId) {
+    public List<UserEventDto> getUserEventsByUserAuthId(String authId) {
         log.info("Getting user events by user auth id: {}", authId);
-        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId)
-                .flatMap(this::getUserEventDto);
+        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId).stream()
+                .map(this::getUserEventDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Flux<UserEventRecordDto> getUserEventRecordsByEventId(String eventId) {
+    public List<UserEventRecordDto> getUserEventRecordsByEventId(String eventId) {
         log.info("Getting user event record by event id: {}", eventId);
-        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId)
-                .map(UserEventRecord::toDto);
+        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId).stream()
+                .map(UserEventRecord::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Flux<UserEventDto> getUserEventsByEventId(String eventId) {
+    public List<UserEventDto> getUserEventsByEventId(String eventId) {
         log.info("Getting user events by event id: {}", eventId);
-        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId)
-                .flatMap(this::getUserEventDto);
+        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId).stream()
+                .map(this::getUserEventDto)
+                .collect(Collectors.toList());
     }
 
-    private Mono<UserEventDto> getUserEventDto(UserEventRecord record) {
+    private UserEventDto getUserEventDto(UserEventRecord record) {
         return this.eventRepository.findEventById(record.getEventId())
                 .map(e -> new UserEventDto().toBuilder()
                         .userAuthId(record.getUserAuthId())
                         .eventDto(e.toDto())
-                        .build());
+                        .build())
+                .orElseThrow(() -> new ServiceException(ErrorCode.S000, ""));
     }
 }

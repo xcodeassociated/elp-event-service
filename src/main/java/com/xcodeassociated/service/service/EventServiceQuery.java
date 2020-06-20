@@ -1,19 +1,23 @@
 package com.xcodeassociated.service.service;
 
 import com.xcodeassociated.service.model.dto.EventDto;
+import com.xcodeassociated.service.model.dto.EventSearchDto;
 import com.xcodeassociated.service.model.dto.EventWithCategoryDto;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public interface EventServiceQuery {
-    Flux<EventDto> getAllEvents();
-    Flux<EventWithCategoryDto> getAllEventsWithCategories();
-    Flux<EventDto> getAllEventsByTitle(String title);
-    Flux<EventWithCategoryDto> getAllEventsByTitleWithCategories(String title);
-    Flux<EventDto> getAllEventsCreatedBy(String user);
-    Flux<EventWithCategoryDto> getAllEventsCreatedByWithCategories(String user);
-    Mono<EventDto> getEventById(String id);
-    Mono<EventWithCategoryDto> getEventByIdWithCategories(String id);
-    Mono<EventDto> getEventByUuid(String uuid);
-    Mono<EventWithCategoryDto> getEventByUuidWithCategories(String uuid);
+    List<EventDto> getAllEvents();
+    List<EventWithCategoryDto> getAllEventsWithCategories();
+    List<EventDto> getAllEventsByTitle(String title);
+    List<EventWithCategoryDto> getAllEventsByTitleWithCategories(String title);
+    List<EventDto> getAllEventsCreatedBy(String user);
+    List<EventDto> getAllEventsModifiedBy(String user);
+    List<EventWithCategoryDto> getAllEventsCreatedByWithCategories(String user);
+    List<EventWithCategoryDto> getAllEventsModifiedByWithCategories(String user);
+    EventDto getEventById(String id);
+    EventWithCategoryDto getEventByIdWithCategories(String id);
+    EventDto getEventByUuid(String uuid);
+    EventWithCategoryDto getEventByUuidWithCategories(String uuid);
+    List<EventDto> getAllEventsByQuery(EventSearchDto dto);
 }

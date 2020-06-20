@@ -1,10 +1,12 @@
 package com.xcodeassociated.service.service;
 
 import com.xcodeassociated.service.model.dto.EventDto;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public interface EventServiceCommand {
-    Mono<EventDto> createEvent(EventDto dto);
-    Mono<EventDto> updateEvent(EventDto dto);
-    Mono<Void> deleteEvent(String id);
+    EventDto createEvent(EventDto dto);
+    List<EventDto> createEvent(List<EventDto> dtos);
+    EventDto updateEvent(EventDto dto);
+    void deleteEvent(String id);
 }

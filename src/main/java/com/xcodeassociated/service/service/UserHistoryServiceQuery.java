@@ -2,14 +2,14 @@ package com.xcodeassociated.service.service;
 
 import com.xcodeassociated.service.model.dto.UserEventDto;
 import com.xcodeassociated.service.model.dto.UserEventRecordDto;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public interface UserHistoryServiceQuery {
-    Mono<UserEventRecordDto> getUserEventRecordById(String id);
-    Mono<UserEventDto> getUserEventById(String id);
-    Flux<UserEventRecordDto> getUserEventRecordsByUserAuthId(String authId);
-    Flux<UserEventDto> getUserEventsByUserAuthId(String authId);
-    Flux<UserEventRecordDto> getUserEventRecordsByEventId(String eventId);
-    Flux<UserEventDto> getUserEventsByEventId(String eventId);
+    UserEventRecordDto getUserEventRecordById(String id);
+    UserEventDto getUserEventById(String id);
+    List<UserEventRecordDto> getUserEventRecordsByUserAuthId(String authId);
+    List<UserEventDto> getUserEventsByUserAuthId(String authId);
+    List<UserEventRecordDto> getUserEventRecordsByEventId(String eventId);
+    List<UserEventDto> getUserEventsByEventId(String eventId);
 }
