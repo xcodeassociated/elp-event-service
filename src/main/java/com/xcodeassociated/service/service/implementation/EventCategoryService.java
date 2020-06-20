@@ -48,7 +48,7 @@ public class EventCategoryService implements EventCategoryQuery, EventCategoryCo
                 .map(EventCategory::toDto).collect(Collectors.toList());
     }
 
-    public List<EventCategory> getEventCategoryByIdsDocuments(List<String> ids) {
+    List<EventCategory> getEventCategoryByIdsDocuments(List<String> ids) {
         log.info("Getting event documents categories by ids: {}", ids);
         return this.eventCategoryRepository.findEventCategoryByIdIn(ids);
     }

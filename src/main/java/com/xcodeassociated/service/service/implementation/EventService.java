@@ -204,16 +204,6 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
         this.eventRepository.deleteById(id);
     }
 
-    private List<EventWithCategoryDto> mapCategories(List<Event> events) {
-        return events.stream().map(e -> {
-            List<EventCategory> eventCategories = this.getEventCategoryByIds(e);
-            return new EventWrapper().toBuilder()
-                    .event(e)
-                    .eventCategories(eventCategories)
-                    .build();
-        }).map(e -> e.getEvent().toDto(e.getEventCategories())).collect(Collectors.toList());
-    }
-
     private Page<EventWithCategoryDto> mapCategories(Page<Event> events) {
         return events.map(e -> {
             List<EventCategory> eventCategories = this.getEventCategoryByIds(e);
