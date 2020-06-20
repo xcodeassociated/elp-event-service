@@ -11,12 +11,12 @@ import com.xcodeassociated.service.service.UserHistoryServiceCommand;
 import com.xcodeassociated.service.service.UserHistoryServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -57,35 +57,31 @@ public class UserHistoryService implements UserHistoryServiceQuery, UserHistoryS
     }
 
     @Override
-    public List<UserEventRecordDto> getUserEventRecordsByUserAuthId(String authId) {
+    public Page<UserEventRecordDto> getUserEventRecordsByUserAuthId(String authId, Pageable pageable) {
         log.info("Getting user event record by user auth id: {}", authId);
-        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId).stream()
-                .map(UserEventRecord::toDto)
-                .collect(Collectors.toList());
+        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId, pageable)
+                .map(UserEventRecord::toDto);
     }
 
     @Override
-    public List<UserEventDto> getUserEventsByUserAuthId(String authId) {
+    public Page<UserEventDto> getUserEventsByUserAuthId(String authId, Pageable pageable) {
         log.info("Getting user events by user auth id: {}", authId);
-        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId).stream()
-                .map(this::getUserEventDto)
-                .collect(Collectors.toList());
+        return this.userEventRecordRepository.findUserEventRecordsByUserAuthId(authId, pageable)
+                .map(this::getUserEventDto);
     }
 
     @Override
-    public List<UserEventRecordDto> getUserEventRecordsByEventId(String eventId) {
+    public Page<UserEventRecordDto> getUserEventRecordsByEventId(String eventId, Pageable pageable) {
         log.info("Getting user event record by event id: {}", eventId);
-        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId).stream()
-                .map(UserEventRecord::toDto)
-                .collect(Collectors.toList());
+        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId, pageable)
+                .map(UserEventRecord::toDto);
     }
 
     @Override
-    public List<UserEventDto> getUserEventsByEventId(String eventId) {
+    public Page<UserEventDto> getUserEventsByEventId(String eventId, Pageable pageable) {
         log.info("Getting user events by event id: {}", eventId);
-        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId).stream()
-                .map(this::getUserEventDto)
-                .collect(Collectors.toList());
+        return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId, pageable)
+                .map(this::getUserEventDto);
     }
 
     private UserEventDto getUserEventDto(UserEventRecord record) {

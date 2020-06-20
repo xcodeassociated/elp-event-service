@@ -1,6 +1,5 @@
 package com.xcodeassociated.service.service.implementation;
 
-import com.google.api.client.util.Lists;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.xcodeassociated.service.exception.ObjectNotFoundException;
@@ -23,6 +22,8 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,27 +53,28 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     private final EventCategoryService eventCategoryService;
 
     @Override
-    public List<EventDto> getAllEvents() {
+    public Page<EventDto> getAllEvents(Pageable pageable) {
         log.info("Getting all events");
-        return this.eventRepository.findAll().stream()
-                .map(Event::toDto).collect(Collectors.toList());
+        return this.eventRepository.findAll(pageable)
+                .map(Event::toDto);
     }
 
     @Override
-    public List<EventWithCategoryDto> getAllEventsWithCategories() {
+    public Page<EventWithCategoryDto> getAllEventsWithCategories(Pageable pageable) {
         log.info("Getting all events with categories");
-        return this.mapCategories(this.eventRepository.findAll());
+        return this.mapCategories(this.eventRepository.findAll(pageable));
     }
 
     @Override
-    public List<EventDto> getAllEventsByQuery(EventSearchDto dto) {
+    public Page<EventDto> getAllEventsByQuery(EventSearchDto dto, Pageable pageable) {
         log.info("Getting all events by search dto: {}", dto);
         return Objects.isNull(dto.getLocation())
-                ? this.findEventsByQueryWithoutLocation(dto).stream().map(Event::toDto).collect(Collectors.toList())
-                : List.of(); //this.findEventsByQueryWithLocation(dto).stream().map(Event::toDto).collect(Collectors.toList());
+                ? this.findEventsByQueryWithoutLocation(dto, pageable).map(Event::toDto)
+                : Page.empty();
     }
 
-    private List<Event> findEventsByQueryWithoutLocation(EventSearchDto dto) {
+    private Page<Event> findEventsByQueryWithoutLocation(EventSearchDto dto
+            , Pageable pageable) {
         Event example = new Event().toBuilder()
                 .title(dto.getTitle())
                 .eventCategories(dto.getEventCategories().stream()
@@ -88,44 +90,44 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
 
         log.info("Using example object: {} and matcher: {}", example, matcher);
 
-        return this.eventRepository.findAll(Example.of(example, matcher));
+        return this.eventRepository.findAll(Example.of(example, matcher), pageable);
     }
 
     @Override
-    public List<EventDto> getAllEventsByTitle(String title) {
+    public Page<EventDto> getAllEventsByTitle(String title, Pageable pageable) {
         log.info("Getting Events by title: {}", title);
-        return this.eventRepository.findEventsByTitleContainingIgnoreCase(title).stream()
-                .map(Event::toDto).collect(Collectors.toList());
+        return this.eventRepository.findEventsByTitleContainingIgnoreCase(title, pageable)
+                .map(Event::toDto);
     }
 
     @Override
-    public List<EventWithCategoryDto> getAllEventsByTitleWithCategories(String title) {
+    public Page<EventWithCategoryDto> getAllEventsByTitleWithCategories(String title, Pageable pageable) {
         log.info("Getting Events with categories by title: {}", title);
-        return this.mapCategories(this.eventRepository.findEventsByTitleContainingIgnoreCase(title));
+        return this.mapCategories(this.eventRepository.findEventsByTitleContainingIgnoreCase(title, pageable));
     }
 
     @Override
-    public List<EventDto> getAllEventsCreatedBy(String user) {
+    public Page<EventDto> getAllEventsCreatedBy(String user, Pageable pageable) {
         log.info("Getting Events created by user: {}", user);
-        return this.getEventsByUser(user).stream().map(Event::toDto).collect(Collectors.toList());
+        return this.getEventsByUser(user, pageable).map(Event::toDto);
     }
 
     @Override
-    public List<EventDto> getAllEventsModifiedBy(String user) {
+    public Page<EventDto> getAllEventsModifiedBy(String user, Pageable pageable) {
         log.info("Getting Events modified by user: {}", user);
-        return this.getEventsByModified(user).stream().map(Event::toDto).collect(Collectors.toList());
+        return this.getEventsByModified(user, pageable).map(Event::toDto);
     }
 
     @Override
-    public List<EventWithCategoryDto> getAllEventsCreatedByWithCategories(String user) {
+    public Page<EventWithCategoryDto> getAllEventsCreatedByWithCategories(String user, Pageable pageable) {
         log.info("Getting Events with categories created by user: {}", user);
-        return this.mapCategories(this.getEventsByUser(user));
+        return this.mapCategories(this.getEventsByUser(user, pageable));
     }
 
     @Override
-    public List<EventWithCategoryDto> getAllEventsModifiedByWithCategories(String user) {
+    public Page<EventWithCategoryDto> getAllEventsModifiedByWithCategories(String user, Pageable pageable) {
         log.info("Getting Events with categories created by user: {}", user);
-        return this.mapCategories(this.getEventsByModified(user));
+        return this.mapCategories(this.getEventsByModified(user, pageable));
     }
 
     @Override
@@ -212,6 +214,16 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
         }).map(e -> e.getEvent().toDto(e.getEventCategories())).collect(Collectors.toList());
     }
 
+    private Page<EventWithCategoryDto> mapCategories(Page<Event> events) {
+        return events.map(e -> {
+            List<EventCategory> eventCategories = this.getEventCategoryByIds(e);
+            return new EventWrapper().toBuilder()
+                    .event(e)
+                    .eventCategories(eventCategories)
+                    .build();
+        }).map(e -> e.getEvent().toDto(e.getEventCategories()));
+    }
+
     private EventWithCategoryDto mapCategory(Event event) {
         List<EventCategory> eventCategories = this.getEventCategoryByIds(event);
         return event.toDto(eventCategories);
@@ -221,7 +233,7 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
         return this.eventCategoryService.getEventCategoryByIdsDocuments(e.getEventCategories().stream().collect(Collectors.toList()));
     }
 
-    private List<Event> getEventsByUser(String user) {
+    private Page<Event> getEventsByUser(String user, Pageable pageable) {
         // note: ReactiveQueryByExampleExecutor used via example document object
         Event example = new Event().toBuilder()
                 .createdBy(user)
@@ -234,17 +246,17 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
 
         log.info("Using example object: {} and matcher: {}", example, matcher);
 
-        return this.eventRepository.findAll(Example.of(example, matcher));
+        return this.eventRepository.findAll(Example.of(example, matcher), pageable);
     }
 
-    private List<Event> getEventsByModified(String user) {
+    private Page<Event> getEventsByModified(String user, Pageable pageable) {
         // note: ReactiveQueryByExampleExecutor used via example document object
         QEvent q = QEvent.event;
         Predicate expression = new BooleanBuilder()
                 .and(q.modifiedBy.endsWithIgnoreCase(user))
                 .getValue();
 
-        return Lists.newArrayList(this.eventRepository.findAll(expression));
+        return this.eventRepository.findAll(expression, pageable);
     }
 
     private Event getById(String id) {

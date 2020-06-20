@@ -10,6 +10,8 @@ import com.xcodeassociated.service.service.EventCategoryQuery;
 import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +36,9 @@ public class EventCategoryService implements EventCategoryQuery, EventCategoryCo
     }
 
     @Override
-    public List<EventCategoryDto> getAllCategories() {
+    public Page<EventCategoryDto> getAllCategories(Pageable pageable) {
         log.info("Getting all categories");
-        return this.eventCategoryRepository.findAll().stream()
-                .map(EventCategory::toDto).collect(Collectors.toList());
+        return this.eventCategoryRepository.findAll(pageable).map(EventCategory::toDto);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.xcodeassociated.service.controller.rest;
 
+import com.xcodeassociated.commons.paging.CustomPageRequest;
+import com.xcodeassociated.commons.paging.SortDirection;
 import com.xcodeassociated.service.model.dto.EventDto;
 import com.xcodeassociated.service.model.dto.EventSearchDto;
 import com.xcodeassociated.service.model.dto.EventWithCategoryDto;
@@ -7,6 +9,8 @@ import com.xcodeassociated.service.service.EventServiceCommand;
 import com.xcodeassociated.service.service.EventServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,15 +27,28 @@ public class EventControllerV1 {
     private final EventServiceCommand eventServiceCommand;
 
     @GetMapping()
-    public ResponseEntity<List<EventDto>> getAllEvents() {
-        log.info("Processing `getAllEvents` request in EventControllerV1");
-        return new ResponseEntity<>(this.eventServiceQuery.getAllEvents(), HttpStatus.OK);
+    public ResponseEntity<Page<EventDto>> getAllEvents(@RequestParam(defaultValue = "1") int page,
+                                                       @RequestParam(defaultValue = "10") int size,
+                                                       @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                       @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `getAllEvents` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventServiceQuery.getAllEvents(pageable), HttpStatus.OK);
     }
 
     @GetMapping("/data")
-    public ResponseEntity<List<EventWithCategoryDto>> getAllEventsWithCategories() {
-        log.info("Processing `getAllEventsWithCategories` request in EventControllerV1");
-        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsWithCategories(), HttpStatus.OK);
+    public ResponseEntity<Page<EventWithCategoryDto>> getAllEventsWithCategories(@RequestParam(defaultValue = "1") int page,
+                                                                                 @RequestParam(defaultValue = "10") int size,
+                                                                                 @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                                                 @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+        log.info("Processing `getAllEventsWithCategories` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsWithCategories(pageable), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -64,37 +81,77 @@ public class EventControllerV1 {
 
     @GetMapping("/by/title/{title}")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<List<EventDto>> getEventsByTitle(@PathVariable String title) {
-        log.info("Processing `getEventsByTitle` request in EventControllerV1, value: {}", title);
-        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByTitle(title), HttpStatus.OK);
+    public ResponseEntity<Page<EventDto>> getEventsByTitle(@PathVariable String title,
+                                                           @RequestParam(defaultValue = "1") int page,
+                                                           @RequestParam(defaultValue = "10") int size,
+                                                           @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                           @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `getEventsByTitle` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByTitle(title, pageable), HttpStatus.OK);
     }
 
     @GetMapping("/by/title/{title}/data")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<List<EventWithCategoryDto>> getEventsByTitleWithCategories(@PathVariable String title) {
-        log.info("Processing `getEventsByTitleWithCategories` request in EventControllerV1, value: {}", title);
-        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByTitleWithCategories(title), HttpStatus.OK);
+    public ResponseEntity<Page<EventWithCategoryDto>> getEventsByTitleWithCategories(@PathVariable String title,
+                                                                                     @RequestParam(defaultValue = "1") int page,
+                                                                                     @RequestParam(defaultValue = "10") int size,
+                                                                                     @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                                                     @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `getEventsByTitleWithCategories` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByTitleWithCategories(title, pageable), HttpStatus.OK);
     }
 
     @GetMapping("/by/createdby/{user}")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<List<EventDto>> getEventsCreatedBy(@PathVariable String user) {
-        log.info("Processing `getEventsCreatedBy` request in EventControllerV1, value: {}", user);
-        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsCreatedBy(user), HttpStatus.OK);
+    public ResponseEntity<Page<EventDto>> getEventsCreatedBy(@PathVariable String user,
+                                                             @RequestParam(defaultValue = "1") int page,
+                                                             @RequestParam(defaultValue = "10") int size,
+                                                             @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                             @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `getEventsCreatedBy` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsCreatedBy(user, pageable), HttpStatus.OK);
     }
 
     @GetMapping("/by/modifiedby/{user}")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<List<EventDto>> getEventsModifiedBy(@PathVariable String user) {
-        log.info("Processing `getEventsModifiedBy` request in EventControllerV1, value: {}", user);
-        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsModifiedBy(user), HttpStatus.OK);
+    public ResponseEntity<Page<EventDto>> getEventsModifiedBy(@PathVariable String user,
+                                                              @RequestParam(defaultValue = "1") int page,
+                                                              @RequestParam(defaultValue = "10") int size,
+                                                              @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                              @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `getEventsModifiedBy` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsModifiedBy(user, pageable), HttpStatus.OK);
     }
 
     @GetMapping("/by/createdby/{user}/date")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<List<EventWithCategoryDto>> getEventsCreatedByWithCategories(@PathVariable String user) {
-        log.info("Processing `getEventsCreatedByWithCategories` request in EventControllerV1, value: {}", user);
-        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsCreatedByWithCategories(user), HttpStatus.OK);
+    public ResponseEntity<Page<EventWithCategoryDto>> getEventsCreatedByWithCategories(@PathVariable String user,
+                                                                                       @RequestParam(defaultValue = "1") int page,
+                                                                                       @RequestParam(defaultValue = "10") int size,
+                                                                                       @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                                                       @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `getEventsCreatedByWithCategories` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsCreatedByWithCategories(user, pageable), HttpStatus.OK);
     }
 
     @PostMapping("/create")
@@ -128,7 +185,17 @@ public class EventControllerV1 {
 
     @PostMapping("/search")
     @PreAuthorize("hasRole('backend_service')")
-    public List<EventDto> searchEventByQuery(@RequestBody EventSearchDto dto) {
-        return this.eventServiceQuery.getAllEventsByQuery(dto);
+    public ResponseEntity<Page<EventDto>> searchEventByQuery(@RequestBody EventSearchDto dto,
+                                             @RequestParam(defaultValue = "1") int page,
+                                             @RequestParam(defaultValue = "10") int size,
+                                             @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                             @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `searchEventByQuery` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+        log.info("Search dto: {}", dto);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByQuery(dto, pageable), HttpStatus.OK);
     }
 }

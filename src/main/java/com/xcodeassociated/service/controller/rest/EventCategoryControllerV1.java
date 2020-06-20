@@ -1,10 +1,14 @@
 package com.xcodeassociated.service.controller.rest;
 
+import com.xcodeassociated.commons.paging.CustomPageRequest;
+import com.xcodeassociated.commons.paging.SortDirection;
 import com.xcodeassociated.service.model.dto.EventCategoryDto;
 import com.xcodeassociated.service.service.EventCategoryCommand;
 import com.xcodeassociated.service.service.EventCategoryQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,9 +26,15 @@ public class EventCategoryControllerV1 {
 
     @GetMapping()
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<List<EventCategoryDto>> getAll() {
-        log.info("Getting all categories");
-        return new ResponseEntity<>(this.eventCategoryQuery.getAllCategories(), HttpStatus.OK);
+    public ResponseEntity<Page<EventCategoryDto>> getAll(@RequestParam(defaultValue = "1") int page,
+                                                         @RequestParam(defaultValue = "10") int size,
+                                                         @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                         @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+        log.info("Processing `getAll` request in EventCategoryControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventCategoryQuery.getAllCategories(pageable), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

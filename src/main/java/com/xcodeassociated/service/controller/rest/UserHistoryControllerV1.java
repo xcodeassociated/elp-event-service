@@ -1,11 +1,15 @@
 package com.xcodeassociated.service.controller.rest;
 
+import com.xcodeassociated.commons.paging.CustomPageRequest;
+import com.xcodeassociated.commons.paging.SortDirection;
 import com.xcodeassociated.service.model.dto.UserEventDto;
 import com.xcodeassociated.service.model.dto.UserEventRecordDto;
 import com.xcodeassociated.service.service.UserHistoryServiceCommand;
 import com.xcodeassociated.service.service.UserHistoryServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,30 +41,63 @@ public class UserHistoryControllerV1 {
 
     @GetMapping("/by/user/{userId}")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<List<UserEventRecordDto>> getUserEventRecordsByUserAuthId(@PathVariable String userId) {
-        log.info("Getting all user event record for user auth id: {}", userId);
-        return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventRecordsByUserAuthId(userId), HttpStatus.OK);
+    public ResponseEntity<Page<UserEventRecordDto>> getUserEventRecordsByUserAuthId(@PathVariable String userId,
+                                                                                    @RequestParam(defaultValue = "1") int page,
+                                                                                    @RequestParam(defaultValue = "10") int size,
+                                                                                    @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                                                    @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `getUserEventRecordsByUserAuthId` request in UserHistoryControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventRecordsByUserAuthId(userId, pageable), HttpStatus.OK);
     }
 
     @GetMapping("/by/user/{userId}/data")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<List<UserEventDto>> getUserEventsByUserAuthId(@PathVariable String userId) {
-        log.info("Getting all user events for user auth id: {}", userId);
-        return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventsByUserAuthId(userId), HttpStatus.OK);
+    public ResponseEntity<Page<UserEventDto>> getUserEventsByUserAuthId(@PathVariable String userId,
+                                                                        @RequestParam(defaultValue = "1") int page,
+                                                                        @RequestParam(defaultValue = "10") int size,
+                                                                        @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                                        @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+
+        log.info("Processing `getUserEventsByUserAuthId` request in UserHistoryControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventsByUserAuthId(userId, pageable), HttpStatus.OK);
     }
 
     @GetMapping("/by/event/{eventId}")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<List<UserEventRecordDto>> getUserEventRecordsByEventId(@PathVariable String eventId) {
-        log.info("Getting all user event record for event id: {}", eventId);
-        return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventRecordsByEventId(eventId), HttpStatus.OK);
+    public ResponseEntity<Page<UserEventRecordDto>> getUserEventRecordsByEventId(@PathVariable String eventId,
+                                                                                 @RequestParam(defaultValue = "1") int page,
+                                                                                 @RequestParam(defaultValue = "10") int size,
+                                                                                 @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                                                 @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `getUserEventRecordsByEventId` request in UserHistoryControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventRecordsByEventId(eventId, pageable), HttpStatus.OK);
     }
 
     @GetMapping("/by/event/{eventId}/data")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<List<UserEventDto>> getUserEventsByEventId(@PathVariable String eventId) {
-        log.info("Getting all user events for event id: {}", eventId);
-        return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventsByEventId(eventId), HttpStatus.OK);
+    public ResponseEntity<Page<UserEventDto>> getUserEventsByEventId(@PathVariable String eventId,
+                                                                     @RequestParam(defaultValue = "1") int page,
+                                                                     @RequestParam(defaultValue = "10") int size,
+                                                                     @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                                     @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `getUserEventsByEventId` request in UserHistoryControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventsByEventId(eventId, pageable), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
