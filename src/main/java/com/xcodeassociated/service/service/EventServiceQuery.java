@@ -22,4 +22,5 @@ public interface EventServiceQuery {
     EventDto getEventByUuid(String uuid);
     EventWithCategoryDto getEventByUuidWithCategories(String uuid);
     Page<EventDto> getAllEventsByQuery(EventSearchDto dto, Pageable pageable);
+    Page<EventWithCategoryDto> getAllEventsByQueryWithCategories(EventSearchDto dto, Pageable pageable);
 }

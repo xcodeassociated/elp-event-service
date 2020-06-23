@@ -198,4 +198,20 @@ public class EventControllerV1 {
         Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
         return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByQuery(dto, pageable), HttpStatus.OK);
     }
+
+    @PostMapping("/search/data")
+    @PreAuthorize("hasRole('backend_service')")
+    public ResponseEntity<Page<EventWithCategoryDto>> searchEventByQueryWithCategories(@RequestBody EventSearchDto dto,
+                                                             @RequestParam(defaultValue = "1") int page,
+                                                             @RequestParam(defaultValue = "10") int size,
+                                                             @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                             @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `searchEventByQuery` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+        log.info("Search dto: {}", dto);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByQueryWithCategories(dto, pageable), HttpStatus.OK);
+    }
 }
