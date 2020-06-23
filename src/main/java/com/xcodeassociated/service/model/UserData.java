@@ -30,7 +30,7 @@ public class UserData extends ComparableBaseDocument<UserData> {
 
     private Set<String> userPreferredCategories;
 
-    private Long maxDistance;
+    private Double maxDistance;
 
     public static UserData fromDto(UserDataDto dto) {
         return new UserData().toBuilder()

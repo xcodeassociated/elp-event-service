@@ -16,5 +16,5 @@ import java.util.Set;
 public class UserDataDto extends BaseEntityDto {
     private String userAuthID; // note: this value should be taken from user oauth token
     private Set<String> userPreferredCategories;
-    private Long maxDistance;
+    private Double maxDistance;
 }
