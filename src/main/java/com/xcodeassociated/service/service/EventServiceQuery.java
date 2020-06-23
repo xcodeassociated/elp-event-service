@@ -3,6 +3,7 @@ package com.xcodeassociated.service.service;
 import com.xcodeassociated.service.model.dto.EventDto;
 import com.xcodeassociated.service.model.dto.EventSearchDto;
 import com.xcodeassociated.service.model.dto.EventWithCategoryDto;
+import com.xcodeassociated.service.model.dto.LocationDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -23,4 +24,6 @@ public interface EventServiceQuery {
     EventWithCategoryDto getEventByUuidWithCategories(String uuid);
     Page<EventDto> getAllEventsByQuery(EventSearchDto dto, Pageable pageable);
     Page<EventWithCategoryDto> getAllEventsByQueryWithCategories(EventSearchDto dto, Pageable pageable);
+    Page<EventDto> getAllEventsByPreference(String user, LocationDto locationDto, Pageable pageable);
+    Page<EventWithCategoryDto> getAllEventsByPreferenceWithCategories(String user, LocationDto locationDto, Pageable pageable);
 }

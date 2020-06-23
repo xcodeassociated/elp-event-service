@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,6 +62,11 @@ public class UserDataService implements UserDataServiceQuery, UserDataServiceCom
     public void deleteUserData(String authId) {
         log.info("Delete user data by auth id: {}", authId);
         this.userDataRepository.deleteByUserAuthID(authId);
+    }
+
+    Optional<UserData> getUserDataOptionalByAuthId(String authId) {
+        log.info("Getting user data by auth id: {}", authId);
+        return this.userDataRepository.findUserDataByUserAuthID(authId);
     }
 
     private UserDataWithCategoryDto getUserDataWithCategoryDto(UserData userData) {

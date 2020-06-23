@@ -17,7 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @RequestMapping("/event/api/v1/token")
 public class TokenV1 {
-    final OauthAuditorServiceInterface oauthAuditorService;
+    private final OauthAuditorServiceInterface oauthAuditorService;
 
     @GetMapping("/whoami")
     @PreAuthorize("hasRole('backend_service')")

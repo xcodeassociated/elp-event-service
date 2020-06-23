@@ -7,10 +7,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.xcodeassociated.service.exception.ObjectNotFoundException;
 import com.xcodeassociated.service.exception.ServiceException;
 import com.xcodeassociated.service.exception.codes.ErrorCode;
-import com.xcodeassociated.service.model.BaseDocument;
-import com.xcodeassociated.service.model.Event;
-import com.xcodeassociated.service.model.EventCategory;
-import com.xcodeassociated.service.model.QEvent;
+import com.xcodeassociated.service.model.*;
 import com.xcodeassociated.service.model.dto.*;
 import com.xcodeassociated.service.repository.EventRepository;
 import com.xcodeassociated.service.service.EventServiceCommand;
@@ -62,6 +59,7 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     private final EventRepository eventRepository;
     private final OauthAuditorServiceInterface oauthAuditorServiceInterface;
     private final EventCategoryService eventCategoryService;
+    private final UserDataService userDataService;
     private final MongoTemplate mongoTemplate;
 
     @Override
@@ -91,6 +89,34 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
         return Utils.anyNonNull(dto.getLocation())
                 ? this.mapCategories(this.findEventsByQueryWithLocation(dto, pageable))
                 : this.mapCategories(this.findEventsByQueryWithoutLocation(dto, pageable));
+    }
+
+    @Override
+    public Page<EventDto> getAllEventsByPreference(String user, LocationDto locationDto, Pageable pageable) {
+        log.info("Getting all events by user preference for user authId: {}", user);
+        Optional<UserData> userData = this.userDataService.getUserDataOptionalByAuthId(user);
+        if (userData.isEmpty()) {
+            throw new ServiceException(ErrorCode.E002, "User has no data set");
+        }
+
+        EventSearchDto eventSearchDto = this.getEventSearchDtoFromUserData(userData.get(), locationDto);
+
+        log.info("Using search dto for user preference event search: {}", eventSearchDto);
+        return this.getAllEventsByQuery(eventSearchDto, pageable);
+    }
+
+    @Override
+    public Page<EventWithCategoryDto> getAllEventsByPreferenceWithCategories(String user, LocationDto locationDto, Pageable pageable) {
+        log.info("Getting all events by user preference with categories for user authId: {}", user);
+        Optional<UserData> userData = this.userDataService.getUserDataOptionalByAuthId(user);
+        if (userData.isEmpty()) {
+            throw new ServiceException(ErrorCode.E002, "User has no data set");
+        }
+
+        EventSearchDto eventSearchDto = this.getEventSearchDtoFromUserData(userData.get(), locationDto);
+
+        log.info("Using search dto for user preference event search: {}", eventSearchDto);
+        return this.getAllEventsByQueryWithCategories(eventSearchDto, pageable);
     }
 
     @Override
@@ -202,6 +228,21 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     public void deleteEvent(String id) {
         log.info("Deleting event by id: {}", id);
         this.eventRepository.deleteById(id);
+    }
+
+    private EventSearchDto getEventSearchDtoFromUserData(UserData userData, LocationDto locationDto) {
+        return new EventSearchDto()
+                .toBuilder()
+                .location(locationDto.getLocation())
+                .range(userData.getMaxDistance())
+                .eventCategories(userData.getUserPreferredCategories().stream()
+                        .map(e -> new EventCategoryDto()
+                                .toBuilder()
+                                .id(e)
+                                .build())
+                        .collect(Collectors.toSet())
+                )
+                .build();
     }
 
     private Page<Event> findEventsByQueryWithoutLocation(EventSearchDto dto, Pageable pageable) {
