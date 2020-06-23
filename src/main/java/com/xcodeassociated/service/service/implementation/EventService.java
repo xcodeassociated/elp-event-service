@@ -21,17 +21,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.geo.Circle;
-import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
-import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
@@ -92,9 +87,9 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     }
 
     @Override
-    public Page<EventDto> getAllEventsByPreference(String user, LocationDto locationDto, Pageable pageable) {
-        log.info("Getting all events by user preference for user authId: {}", user);
-        Optional<UserData> userData = this.userDataService.getUserDataOptionalByAuthId(user);
+    public Page<EventDto> getAllEventsByPreference(String authId, LocationDto locationDto, Pageable pageable) {
+        log.info("Getting all events by user preference for user authId: {}", authId);
+        Optional<UserData> userData = this.userDataService.getUserDataOptionalByAuthId(authId);
         if (userData.isEmpty()) {
             throw new ServiceException(ErrorCode.E002, "User has no data set");
         }
@@ -106,9 +101,9 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     }
 
     @Override
-    public Page<EventWithCategoryDto> getAllEventsByPreferenceWithCategories(String user, LocationDto locationDto, Pageable pageable) {
-        log.info("Getting all events by user preference with categories for user authId: {}", user);
-        Optional<UserData> userData = this.userDataService.getUserDataOptionalByAuthId(user);
+    public Page<EventWithCategoryDto> getAllEventsByPreferenceWithCategories(String authId, LocationDto locationDto, Pageable pageable) {
+        log.info("Getting all events by user preference with categories for user authId: {}", authId);
+        Optional<UserData> userData = this.userDataService.getUserDataOptionalByAuthId(authId);
         if (userData.isEmpty()) {
             throw new ServiceException(ErrorCode.E002, "User has no data set");
         }
@@ -133,27 +128,27 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     }
 
     @Override
-    public Page<EventDto> getAllEventsCreatedBy(String user, Pageable pageable) {
-        log.info("Getting Events created by user: {}", user);
-        return this.getEventsByUser(user, pageable).map(Event::toDto);
+    public Page<EventDto> getAllEventsCreatedBy(String authId, Pageable pageable) {
+        log.info("Getting Events created by user: {}", authId);
+        return this.getEventsByUser(authId, pageable).map(Event::toDto);
     }
 
     @Override
-    public Page<EventDto> getAllEventsModifiedBy(String user, Pageable pageable) {
-        log.info("Getting Events modified by user: {}", user);
-        return this.getEventsByModified(user, pageable).map(Event::toDto);
+    public Page<EventDto> getAllEventsModifiedBy(String authId, Pageable pageable) {
+        log.info("Getting Events modified by user: {}", authId);
+        return this.getEventsByModified(authId, pageable).map(Event::toDto);
     }
 
     @Override
-    public Page<EventWithCategoryDto> getAllEventsCreatedByWithCategories(String user, Pageable pageable) {
-        log.info("Getting Events with categories created by user: {}", user);
-        return this.mapCategories(this.getEventsByUser(user, pageable));
+    public Page<EventWithCategoryDto> getAllEventsCreatedByWithCategories(String authId, Pageable pageable) {
+        log.info("Getting Events with categories created by user: {}", authId);
+        return this.mapCategories(this.getEventsByUser(authId, pageable));
     }
 
     @Override
-    public Page<EventWithCategoryDto> getAllEventsModifiedByWithCategories(String user, Pageable pageable) {
-        log.info("Getting Events with categories created by user: {}", user);
-        return this.mapCategories(this.getEventsByModified(user, pageable));
+    public Page<EventWithCategoryDto> getAllEventsModifiedByWithCategories(String authId, Pageable pageable) {
+        log.info("Getting Events with categories created by user: {}", authId);
+        return this.mapCategories(this.getEventsByModified(authId, pageable));
     }
 
     @Override
