@@ -1,7 +1,6 @@
 package com.xcodeassociated.service.service.implementation.query;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.xcodeassociated.service.exception.ServiceException;
 import com.xcodeassociated.service.exception.codes.ErrorCode;
 import com.xcodeassociated.service.model.QEvent;
@@ -9,7 +8,16 @@ import com.xcodeassociated.service.model.dto.BaseEntityDto;
 import com.xcodeassociated.service.model.dto.EventSearchDto;
 import com.xcodeassociated.service.service.implementation.helper.EventSearchDtoHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.geo.Circle;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,5 +53,29 @@ public class EventQuery {
         ).filter(Optional::isPresent)
                 .map(Optional::get)
                 .reduce(BooleanExpression::and);
+    }
+
+    @NotNull
+    public static Query getLocationQuery(EventSearchDto dto, Pageable pageable, List<String> eventIds, List<Double> location, Metrics metrics) {
+        Point point = new Point(location.get(0), location.get(1));
+        Distance distance = new Distance(dto.getRange(), metrics);
+        Circle circle = new Circle(point, distance);
+        Criteria geoCriteria = Criteria.where("location").withinSphere(circle);
+        Criteria idCriteria = Criteria.where("id").in(eventIds);
+        Query query = Query.query(geoCriteria);
+        query.addCriteria(idCriteria);
+        query.with(pageable);
+        return query;
+    }
+
+    @NotNull
+    public static Query getLocationQuery(EventSearchDto dto, Pageable pageable, List<Double> location, Metrics metrics) {
+        Point point = new Point(location.get(0), location.get(1));
+        Distance distance = new Distance(dto.getRange(), metrics);
+        Circle circle = new Circle(point, distance);
+        Criteria geoCriteria = Criteria.where("location").withinSphere(circle);
+        Query query = Query.query(geoCriteria);
+        query.with(pageable);
+        return query;
     }
 }

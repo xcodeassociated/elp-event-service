@@ -222,7 +222,7 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
                     .map(BaseDocument::getId)
                     .collect(Collectors.toList());
 
-            Query query = this.getLocationQuery(dto, pageable, eventIds, location, Metrics.KILOMETERS);
+            Query query = EventQuery.getLocationQuery(dto, pageable, eventIds, location, Metrics.KILOMETERS);
             log.info("Using query: {}", query);
 
             List<Event> result = this.mongoTemplate.find(query, Event.class);
@@ -232,7 +232,7 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
             log.info("Expression is empty, using only location query");
             List<Double> location = List.of(dto.getLocation());
 
-            Query query = this.getLocationQuery(dto, pageable, location, Metrics.KILOMETERS);
+            Query query = EventQuery.getLocationQuery(dto, pageable, location, Metrics.KILOMETERS);
             log.info("Using query: {}", query);
 
             List<Event> result = this.mongoTemplate.find(query, Event.class);
@@ -242,30 +242,6 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
             log.error("EventSearchDto: {} is not searchable", dto);
             throw new ServiceException(ErrorCode.E002, "EventSearchDto is not searchable");
         }
-    }
-
-    @NotNull
-    private Query getLocationQuery(EventSearchDto dto, Pageable pageable, List<String> eventIds, List<Double> location, Metrics metrics) {
-        Point point = new Point(location.get(0), location.get(1));
-        Distance distance = new Distance(dto.getRange(), metrics);
-        Circle circle = new Circle(point, distance);
-        Criteria geoCriteria = Criteria.where("location").withinSphere(circle);
-        Criteria idCriteria = Criteria.where("id").in(eventIds);
-        Query query = Query.query(geoCriteria);
-        query.addCriteria(idCriteria);
-        query.with(pageable);
-        return query;
-    }
-
-    @NotNull
-    private Query getLocationQuery(EventSearchDto dto, Pageable pageable, List<Double> location, Metrics metrics) {
-        Point point = new Point(location.get(0), location.get(1));
-        Distance distance = new Distance(dto.getRange(), metrics);
-        Circle circle = new Circle(point, distance);
-        Criteria geoCriteria = Criteria.where("location").withinSphere(circle);
-        Query query = Query.query(geoCriteria);
-        query.with(pageable);
-        return query;
     }
 
     private Page<EventWithCategoryDto> mapCategories(Page<Event> events) {
