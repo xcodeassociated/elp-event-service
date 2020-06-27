@@ -29,7 +29,7 @@ public class EventControllerV1 {
     private final EventServiceQuery eventServiceQuery;
     private final EventServiceCommand eventServiceCommand;
 
-    @GetMapping()
+    @GetMapping("/paged")
     public ResponseEntity<Page<EventDto>> getAllEvents(@RequestParam(defaultValue = "1") int page,
                                                        @RequestParam(defaultValue = "10") int size,
                                                        @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
@@ -42,7 +42,7 @@ public class EventControllerV1 {
         return new ResponseEntity<>(this.eventServiceQuery.getAllEvents(pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/data")
+    @GetMapping("/paged/data")
     public ResponseEntity<Page<EventWithCategoryDto>> getAllEventsWithCategories(@RequestParam(defaultValue = "1") int page,
                                                                                  @RequestParam(defaultValue = "10") int size,
                                                                                  @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
@@ -82,7 +82,7 @@ public class EventControllerV1 {
         return new ResponseEntity<>(this.eventServiceQuery.getEventByUuidWithCategories(value), HttpStatus.OK);
     }
 
-    @GetMapping("/by/title/{title}")
+    @GetMapping("/by/title/{title}/paged")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<EventDto>> getEventsByTitle(@PathVariable String title,
                                                            @RequestParam(defaultValue = "1") int page,
@@ -97,7 +97,7 @@ public class EventControllerV1 {
         return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByTitle(title, pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/by/title/{title}/data")
+    @GetMapping("/by/title/{title}/paged/data")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<EventWithCategoryDto>> getEventsByTitleWithCategories(@PathVariable String title,
                                                                                      @RequestParam(defaultValue = "1") int page,
@@ -112,7 +112,7 @@ public class EventControllerV1 {
         return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByTitleWithCategories(title, pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/by/createdby/{user}")
+    @GetMapping("/by/createdby/{user}/paged")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<EventDto>> getEventsCreatedBy(@PathVariable String user,
                                                              @RequestParam(defaultValue = "1") int page,
@@ -127,7 +127,7 @@ public class EventControllerV1 {
         return new ResponseEntity<>(this.eventServiceQuery.getAllEventsCreatedBy(user, pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/by/modifiedby/{user}")
+    @GetMapping("/by/modifiedby/{user}/paged")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<EventDto>> getEventsModifiedBy(@PathVariable String user,
                                                               @RequestParam(defaultValue = "1") int page,
@@ -142,7 +142,7 @@ public class EventControllerV1 {
         return new ResponseEntity<>(this.eventServiceQuery.getAllEventsModifiedBy(user, pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/by/createdby/{user}/data")
+    @GetMapping("/by/createdby/{user}/paged/data")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<EventWithCategoryDto>> getEventsCreatedByWithCategories(@PathVariable String user,
                                                                                        @RequestParam(defaultValue = "1") int page,
@@ -186,7 +186,7 @@ public class EventControllerV1 {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/preferred")
+    @GetMapping("/preferred/paged")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<EventDto>> getPreferredEvents(@RequestBody LocationDto locationDto,
                                                              @RequestParam(defaultValue = "1") int page,
@@ -202,7 +202,7 @@ public class EventControllerV1 {
         return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByPreference(userAuthId, locationDto, pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/preferred/data")
+    @GetMapping("/preferred/paged/data")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<EventWithCategoryDto>> getPreferredEventsWithCategories(@RequestBody LocationDto locationDto,
                                                                                        @RequestParam(defaultValue = "1") int page,

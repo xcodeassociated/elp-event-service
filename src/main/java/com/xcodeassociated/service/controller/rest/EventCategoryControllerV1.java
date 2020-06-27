@@ -24,7 +24,7 @@ public class EventCategoryControllerV1 {
     private final EventCategoryQuery eventCategoryQuery;
     private final EventCategoryCommand eventCategoryCommand;
 
-    @GetMapping()
+    @GetMapping("/paged")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<EventCategoryDto>> getAll(@RequestParam(defaultValue = "1") int page,
                                                          @RequestParam(defaultValue = "10") int size,
@@ -51,7 +51,7 @@ public class EventCategoryControllerV1 {
         return new ResponseEntity<>(this.eventCategoryQuery.getEventCategoryByIds(List.of(ids)), HttpStatus.OK);
     }
 
-    @PostMapping()
+    @PostMapping("/create")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<EventCategoryDto> saveCategory(@RequestBody EventCategoryDto dto) {
         log.info("Saving category: {}", dto);

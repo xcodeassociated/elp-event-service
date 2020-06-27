@@ -37,7 +37,7 @@ public class UserHistoryControllerV1 {
         return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventRecordById(id), HttpStatus.OK);
     }
 
-    @GetMapping("/by/user/{userId}")
+    @GetMapping("/by/user/{userId}/paged")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<UserEventRecordDto>> getUserEventRecordsByUserAuthId(@PathVariable String userId,
                                                                                     @RequestParam(defaultValue = "1") int page,
@@ -52,7 +52,7 @@ public class UserHistoryControllerV1 {
         return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventRecordsByUserAuthId(userId, pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/by/user/{userId}/data")
+    @GetMapping("/by/user/{userId}/paged/data")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<UserEventDto>> getUserEventsByUserAuthId(@PathVariable String userId,
                                                                         @RequestParam(defaultValue = "1") int page,
@@ -68,7 +68,7 @@ public class UserHistoryControllerV1 {
         return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventsByUserAuthId(userId, pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/by/event/{eventId}")
+    @GetMapping("/by/event/{eventId}/paged")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<UserEventRecordDto>> getUserEventRecordsByEventId(@PathVariable String eventId,
                                                                                  @RequestParam(defaultValue = "1") int page,
@@ -83,7 +83,7 @@ public class UserHistoryControllerV1 {
         return new ResponseEntity<>(this.userHistoryServiceQuery.getUserEventRecordsByEventId(eventId, pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/by/event/{eventId}/data")
+    @GetMapping("/by/event/{eventId}/paged/data")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<UserEventDto>> getUserEventsByEventId(@PathVariable String eventId,
                                                                      @RequestParam(defaultValue = "1") int page,
