@@ -186,7 +186,7 @@ public class EventControllerV1 {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/preferred/paged")
+    @PostMapping("/preferred/paged")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<EventDto>> getPreferredEvents(@RequestBody LocationDto locationDto,
                                                              @RequestParam(defaultValue = "1") int page,
@@ -197,12 +197,12 @@ public class EventControllerV1 {
         log.info("Processing `getPreferredEvents` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
                 page, size, sortBy, sortDirection);
 
-        String userAuthId = this.oauthAuditorService.getUsername();
+        String userAuthId = this.oauthAuditorService.getUserSub();
         Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
         return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByPreference(userAuthId, locationDto, pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/preferred/paged/data")
+    @PostMapping("/preferred/paged/data")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Page<EventWithCategoryDto>> getPreferredEventsWithCategories(@RequestBody LocationDto locationDto,
                                                                                        @RequestParam(defaultValue = "1") int page,
@@ -213,7 +213,7 @@ public class EventControllerV1 {
         log.info("Processing `getPreferredEventsWithCategories` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
                 page, size, sortBy, sortDirection);
 
-        String userAuthId = this.oauthAuditorService.getUsername();
+        String userAuthId = this.oauthAuditorService.getUserSub();
         Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
         return new ResponseEntity<>(this.eventServiceQuery.getAllEventsByPreferenceWithCategories(userAuthId, locationDto, pageable), HttpStatus.OK);
     }

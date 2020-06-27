@@ -80,7 +80,7 @@ public class UserDataControllerV1 {
 
     @DeleteMapping()
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<Void> deleteUserDataByToken(@RequestBody UserDataDto dto) {
+    public ResponseEntity<Void> deleteUserDataByToken() {
         String authId = this.oauthAuditorService.getUserSub();
         log.info("Deleting user data for auth id: {}", authId);
         this.userDataServiceCommand.deleteUserData(authId);

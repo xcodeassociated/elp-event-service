@@ -46,7 +46,7 @@ public class UserData extends ComparableBaseDocument<UserData> {
         }
 
         Set<String> newUserPreferredCategories = dto.getUserPreferredCategories();
-        if (this.userPreferredCategories.equals(newUserPreferredCategories)) {
+        if (!this.userPreferredCategories.equals(newUserPreferredCategories)) {
             this.userPreferredCategories.clear();
             this.userPreferredCategories.addAll(newUserPreferredCategories);
         }
