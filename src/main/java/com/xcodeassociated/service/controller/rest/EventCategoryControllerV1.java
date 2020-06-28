@@ -37,6 +37,13 @@ public class EventCategoryControllerV1 {
         return new ResponseEntity<>(this.eventCategoryQuery.getAllCategories(pageable), HttpStatus.OK);
     }
 
+    @GetMapping()
+    @PreAuthorize("hasRole('backend_service')")
+    public ResponseEntity<List<EventCategoryDto>> getAll() {
+        log.info("Getting category non-paged");
+        return new ResponseEntity<>(this.eventCategoryQuery.getAllCategories(), HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<EventCategoryDto> getEventCategoryById(@PathVariable String id) {

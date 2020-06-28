@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface EventCategoryQuery {
     Page<EventCategoryDto> getAllCategories(Pageable pageable);
+    List<EventCategoryDto> getAllCategories();
     EventCategoryDto getEventCategoryById(String id);
     List<EventCategoryDto> getEventCategoryByIds(List<String> ids);
 }

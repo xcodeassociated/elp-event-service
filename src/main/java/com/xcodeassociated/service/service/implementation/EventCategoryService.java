@@ -42,6 +42,14 @@ public class EventCategoryService implements EventCategoryQuery, EventCategoryCo
     }
 
     @Override
+    public List<EventCategoryDto> getAllCategories() {
+        log.info("Getting all categories");
+        return this.eventCategoryRepository.findAll().stream()
+                .map(EventCategory::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<EventCategoryDto> getEventCategoryByIds(List<String> ids) {
         log.info("Getting event categories by ids: {}", ids);
         return this.eventCategoryRepository.findEventCategoryByIdIn(ids).stream()
