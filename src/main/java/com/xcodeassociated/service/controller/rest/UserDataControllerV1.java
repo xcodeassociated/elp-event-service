@@ -15,18 +15,11 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/event/api/v1/user")
+@RequestMapping("/event/api/v1/userdata")
 public class UserDataControllerV1 {
     private final UserDataServiceQuery userDataServiceQuery;
     private final UserDataServiceCommand userDataServiceCommand;
     private final OauthAuditorServiceInterface oauthAuditorService;
-
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<UserDataDto> getUserDataByAuthId(@PathVariable String id) {
-        log.info("Getting user data for auth id: {}", id);
-        return new ResponseEntity<>(this.userDataServiceQuery.getUserDataByAuthId(id), HttpStatus.OK);
-    }
 
     @GetMapping()
     @PreAuthorize("hasRole('backend_service')")
@@ -34,13 +27,6 @@ public class UserDataControllerV1 {
         String authId = this.oauthAuditorService.getUserSub();
         log.info("Getting user data for auth id: {}", authId);
         return new ResponseEntity<>(this.userDataServiceQuery.getUserDataByAuthId(authId), HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}/data")
-    @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId(@PathVariable String id) {
-        log.info("Getting user data with category for auth id: {}", id);
-        return new ResponseEntity<>(this.userDataServiceQuery.getUserDataWithCategoryByAuthId(id), HttpStatus.OK);
     }
 
     @GetMapping("/data")
@@ -51,7 +37,21 @@ public class UserDataControllerV1 {
         return new ResponseEntity<>(this.userDataServiceQuery.getUserDataWithCategoryByAuthId(authId), HttpStatus.OK);
     }
 
-    @PostMapping("/{id}")
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('backend_service')")
+    public ResponseEntity<UserDataDto> getUserDataByAuthId(@PathVariable String id) {
+        log.info("Getting user data for auth id: {}", id);
+        return new ResponseEntity<>(this.userDataServiceQuery.getUserDataByAuthId(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/data")
+    @PreAuthorize("hasRole('backend_service')")
+    public ResponseEntity<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId(@PathVariable String id) {
+        log.info("Getting user data with category for auth id: {}", id);
+        return new ResponseEntity<>(this.userDataServiceQuery.getUserDataWithCategoryByAuthId(id), HttpStatus.OK);
+    }
+
+    @PostMapping("/save/{id}")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<UserDataDto> saveUserDataByAuthId(@PathVariable String id, @RequestBody UserDataDto dto) {
         dto.setUserAuthID(id);
@@ -60,7 +60,7 @@ public class UserDataControllerV1 {
         return new ResponseEntity<>(this.userDataServiceCommand.saveUserData(dto), HttpStatus.OK);
     }
 
-    @PostMapping()
+    @PostMapping("/save")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<UserDataDto> saveUserDataByToken(@RequestBody UserDataDto dto) {
         String authId = this.oauthAuditorService.getUserSub();

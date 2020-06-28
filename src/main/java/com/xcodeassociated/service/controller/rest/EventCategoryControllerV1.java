@@ -51,7 +51,7 @@ public class EventCategoryControllerV1 {
         return new ResponseEntity<>(this.eventCategoryQuery.getEventCategoryByIds(List.of(ids)), HttpStatus.OK);
     }
 
-    @PostMapping("/create")
+    @PostMapping("/save")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<EventCategoryDto> saveCategory(@RequestBody EventCategoryDto dto) {
         log.info("Saving category: {}", dto);
