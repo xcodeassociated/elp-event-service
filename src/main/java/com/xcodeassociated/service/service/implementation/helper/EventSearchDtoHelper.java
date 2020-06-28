@@ -14,7 +14,12 @@ public class EventSearchDtoHelper {
     }
 
     public static boolean dtoSearchable(EventSearchDto dto) {
-        return StringUtils.isNoneBlank(dto.getTitle())
+        return StringUtils.isNoneBlank(dto.getId())
+                || StringUtils.isNoneBlank(dto.getUuid())
+                || StringUtils.isNoneBlank(dto.getTitle())
+                || StringUtils.isNoneBlank(dto.getCreatedBy())
+                || StringUtils.isNoneBlank(dto.getModifiedBy())
+                || Objects.nonNull(dto.getCreatedDate())
                 || Objects.nonNull(dto.getStart())
                 || Objects.nonNull(dto.getStop())
                 || Utils.anyNonNull(dto.getLocation())

@@ -35,6 +35,20 @@ public class EventQuery {
 
         QEvent q = QEvent.event;
         return Stream.of(
+                Optional.ofNullable(dto.getId())
+                        .filter(StringUtils::isNotBlank)
+                        .map(q.id::eq),
+                Optional.ofNullable(dto.getUuid())
+                        .filter(StringUtils::isNotBlank)
+                        .map(q.uuid::eq),
+                Optional.ofNullable(dto.getCreatedBy())
+                        .filter(StringUtils::isNotBlank)
+                        .map(q.createdBy::eq),
+                Optional.ofNullable(dto.getModifiedBy())
+                        .filter(StringUtils::isNotBlank)
+                        .map(q.modifiedBy::eq),
+                Optional.ofNullable(dto.getCreatedDate())
+                        .map(q.createdDate::eq),
                 Optional.ofNullable(dto.getTitle())
                         .filter(StringUtils::isNotBlank)
                         .map(q.title::like),
