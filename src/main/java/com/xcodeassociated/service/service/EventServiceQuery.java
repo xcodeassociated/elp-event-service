@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 public interface EventServiceQuery {
     Page<EventDto> getAllEvents(Pageable pageable);
     Page<EventWithCategoryDto> getAllEventsWithCategories(String authId, Pageable pageable);
+    Page<EventDto> getAllActiveEvents(Pageable pageable);
+    Page<EventWithCategoryDto> getAllActiveEventsWithCategories(String authId, Pageable pageable);
     Page<EventDto> getAllEventsByTitle(String title, Pageable pageable);
     Page<EventWithCategoryDto> getAllEventsByTitleWithCategories(String title, String authId, Pageable pageable);
     Page<EventDto> getAllEventsCreatedBy(String authId, Pageable pageable);

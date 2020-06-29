@@ -17,6 +17,7 @@ public class EventSearchDto extends BaseEntityDto {
     private String title;
     private Double[] location;
     private Double range;
+    private Boolean active;
     private Long start;
     private Long stop;
     private Set<EventCategoryDto> eventCategories;

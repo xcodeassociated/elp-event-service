@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface EventRepository extends BaseRepository<Event, String> {
     Page<Event> findAll(Pageable pageable);
+    Page<Event> findAllEventsByStopAfter(Long millis, Pageable pageable);
     Optional<Event> findEventById(String id);
     Optional<Event> findEventByUuid(String uuid);
     Page<Event> findEventsByTitleContainingIgnoreCase(String title, Pageable pageable);

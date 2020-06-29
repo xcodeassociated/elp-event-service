@@ -28,11 +28,14 @@ public class EventQuery {
         throw new ServiceException(ErrorCode.E002, "EventQuery should not be instantiated");
     }
 
-    public static Optional<BooleanExpression> toPredicate(EventSearchDto dto) {
+    public static Optional<BooleanExpression> toPredicate(EventSearchDto dto, Long currentMillis, boolean active) {
         if (!EventSearchDtoHelper.dtoSearchable(dto)) {
             return Optional.empty();
         }
+        return (active) ? toPredicateActive(dto, currentMillis) : toPredicate(dto);
+    }
 
+    private static Optional<BooleanExpression> toPredicate(EventSearchDto dto) {
         QEvent q = QEvent.event;
         return Stream.of(
                 Optional.ofNullable(dto.getId())
@@ -55,7 +58,40 @@ public class EventQuery {
                 Optional.ofNullable(dto.getStart())
                         .map(q.start::goe),
                 Optional.ofNullable(dto.getStop())
-                        .map(q.start::loe),
+                        .map(q.stop::loe),
+                Optional.ofNullable(dto.getEventCategories())
+                        .map(c -> c.stream()
+                                .filter(Objects::nonNull)
+                                .map(BaseEntityDto::getId)
+                                .filter(StringUtils::isNoneBlank)
+                                .collect(Collectors.toSet())
+                        )
+                        .map(p -> q.eventCategories.any().in(p))
+        ).filter(Optional::isPresent)
+                .map(Optional::get)
+                .reduce(BooleanExpression::and);
+    }
+
+    private static Optional<BooleanExpression> toPredicateActive(EventSearchDto dto, Long currentMillis) {
+        QEvent q = QEvent.event;
+        return Stream.of(
+                Optional.ofNullable(dto.getId())
+                        .filter(StringUtils::isNotBlank)
+                        .map(q.id::eq),
+                Optional.ofNullable(dto.getUuid())
+                        .filter(StringUtils::isNotBlank)
+                        .map(q.uuid::eq),
+                Optional.ofNullable(dto.getCreatedBy())
+                        .filter(StringUtils::isNotBlank)
+                        .map(q.createdBy::eq),
+                Optional.ofNullable(dto.getModifiedBy())
+                        .filter(StringUtils::isNotBlank)
+                        .map(q.modifiedBy::eq),
+                Optional.ofNullable(dto.getTitle())
+                        .filter(StringUtils::isNotBlank)
+                        .map(q.title::like),
+                Optional.ofNullable(currentMillis)
+                        .map(q.stop::goe),
                 Optional.ofNullable(dto.getEventCategories())
                         .map(c -> c.stream()
                                 .filter(Objects::nonNull)

@@ -72,19 +72,34 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     }
 
     @Override
+    public Page<EventDto> getAllActiveEvents(Pageable pageable) {
+        log.info("Getting all active events");
+        Long currentMillis = System.currentTimeMillis();
+        return this.eventRepository.findAllEventsByStopAfter(currentMillis, pageable)
+                .map(Event::toDto);
+    }
+
+    @Override
+    public Page<EventWithCategoryDto> getAllActiveEventsWithCategories(String authId, Pageable pageable) {
+        log.info("Getting all active events with categories");
+        Long currentMillis = System.currentTimeMillis();
+        return this.mapEventRegistered(this.mapCategories(this.eventRepository.findAllEventsByStopAfter(currentMillis, pageable)), authId);
+    }
+
+    @Override
     public Page<EventDto> getAllEventsByQuery(EventSearchDto dto, Pageable pageable) {
         log.info("Getting all events by search dto: {}", dto);
         return Utils.anyNonNull(dto.getLocation())
-                ? this.findEventsByQueryWithLocation(dto, pageable).map(Event::toDto)
-                : this.findEventsByQueryWithoutLocation(dto, pageable).map(Event::toDto);
+                ? this.findEventsByQueryWithLocation(dto, dto.getActive(), pageable).map(Event::toDto)
+                : this.findEventsByQueryWithoutLocation(dto, dto.getActive(), pageable).map(Event::toDto);
     }
 
     @Override
     public Page<EventWithCategoryDto> getAllEventsByQueryWithCategories(EventSearchDto dto, String authId, Pageable pageable) {
         log.info("Getting all events by search dto: {}", dto);
         return Utils.anyNonNull(dto.getLocation())
-                ? this.mapEventRegistered(this.mapCategories(this.findEventsByQueryWithLocation(dto, pageable)), authId)
-                : this.mapEventRegistered(this.mapCategories(this.findEventsByQueryWithoutLocation(dto, pageable)), authId);
+                ? this.mapEventRegistered(this.mapCategories(this.findEventsByQueryWithLocation(dto, dto.getActive(), pageable)), authId)
+                : this.mapEventRegistered(this.mapCategories(this.findEventsByQueryWithoutLocation(dto, dto.getActive(), pageable)), authId);
     }
 
     @Override
@@ -95,7 +110,8 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
             throw new ServiceException(ErrorCode.E002, "User has no data set");
         }
 
-        EventSearchDto eventSearchDto = this.getEventSearchDtoFromUserData(userData.get(), locationDto);
+        // note: active events by preference
+        EventSearchDto eventSearchDto = this.getEventSearchDtoFromUserData(userData.get(), locationDto, true);
 
         log.info("Using search dto for user preference event search: {}", eventSearchDto);
         return this.getAllEventsByQuery(eventSearchDto, pageable);
@@ -109,7 +125,8 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
             throw new ServiceException(ErrorCode.E002, "User has no data set");
         }
 
-        EventSearchDto eventSearchDto = this.getEventSearchDtoFromUserData(userData.get(), locationDto);
+        // note: active events by preference
+        EventSearchDto eventSearchDto = this.getEventSearchDtoFromUserData(userData.get(), locationDto, true);
 
         log.info("Using search dto for user preference event search: {}", eventSearchDto);
         return this.getAllEventsByQueryWithCategories(eventSearchDto, authId, pageable);
@@ -226,10 +243,11 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
         this.eventRepository.deleteById(id);
     }
 
-    private EventSearchDto getEventSearchDtoFromUserData(UserData userData, LocationDto locationDto) {
+    private EventSearchDto getEventSearchDtoFromUserData(UserData userData, LocationDto locationDto, boolean active) {
         return new EventSearchDto()
                 .toBuilder()
                 .location(locationDto.getLocation())
+                .active(active)
                 .range(userData.getMaxDistance())
                 .eventCategories(userData.getUserPreferredCategories().stream()
                         .map(e -> new EventCategoryDto()
@@ -241,15 +259,17 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
                 .build();
     }
 
-    private Page<Event> findEventsByQueryWithoutLocation(EventSearchDto dto, Pageable pageable) {
-        BooleanExpression expression = EventQuery.toPredicate(dto)
+    private Page<Event> findEventsByQueryWithoutLocation(EventSearchDto dto, boolean active, Pageable pageable) {
+        Long currentMillis = System.currentTimeMillis();
+        BooleanExpression expression = EventQuery.toPredicate(dto, currentMillis, active)
                 .orElseThrow(() -> new ServiceException(ErrorCode.S000, "BooleanExpression empty"));
         log.info("Using expression: {}", expression);
         return this.eventRepository.findAll(expression, pageable);
     }
 
-    private Page<Event> findEventsByQueryWithLocation(EventSearchDto dto, Pageable pageable) {
-        Optional<BooleanExpression> expression = EventQuery.toPredicate(dto);
+    private Page<Event> findEventsByQueryWithLocation(EventSearchDto dto, boolean active, Pageable pageable) {
+        Long currentMillis = System.currentTimeMillis();
+        Optional<BooleanExpression> expression = EventQuery.toPredicate(dto, currentMillis, active);
         if (expression.isPresent()) {
             log.info("Using expression: {}", expression.get());
 

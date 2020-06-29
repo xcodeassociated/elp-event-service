@@ -54,6 +54,32 @@ public class EventControllerV1 {
         return new ResponseEntity<>(this.eventServiceQuery.getAllEventsWithCategories(this.oauthAuditorService.getUserSub(), pageable), HttpStatus.OK);
     }
 
+    @GetMapping("/active/paged")
+    public ResponseEntity<Page<EventDto>> getAllActiveEvents(@RequestParam(defaultValue = "1") int page,
+                                                       @RequestParam(defaultValue = "10") int size,
+                                                       @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                       @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+
+        log.info("Processing `getAllEvents` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventServiceQuery.getAllActiveEvents(pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/active/paged/data")
+    public ResponseEntity<Page<EventWithCategoryDto>> getAllActiveEventsWithCategories(@RequestParam(defaultValue = "1") int page,
+                                                                                 @RequestParam(defaultValue = "10") int size,
+                                                                                 @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+                                                                                 @RequestParam(name = "sort_how", defaultValue = "asc") SortDirection sortDirection) {
+        log.info("Processing `getAllEventsWithCategories` request in EventControllerV1, page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
+
+        Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
+        return new ResponseEntity<>(this.eventServiceQuery.getAllActiveEventsWithCategories(this.oauthAuditorService.getUserSub(), pageable), HttpStatus.OK);
+    }
+
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<EventDto> getEvent(@PathVariable String id) {
