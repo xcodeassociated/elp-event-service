@@ -4,6 +4,7 @@ import com.xcodeassociated.commons.paging.CustomPageRequest;
 import com.xcodeassociated.commons.paging.SortDirection;
 import com.xcodeassociated.service.model.dto.UserEventDto;
 import com.xcodeassociated.service.model.dto.UserEventRecordDto;
+import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
 import com.xcodeassociated.service.service.UserHistoryServiceCommand;
 import com.xcodeassociated.service.service.UserHistoryServiceQuery;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserHistoryControllerV1 {
     private final UserHistoryServiceQuery userHistoryServiceQuery;
     private final UserHistoryServiceCommand userHistoryServiceCommand;
+    private final OauthAuditorServiceInterface oauthAuditorService;
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
@@ -106,9 +108,10 @@ public class UserHistoryControllerV1 {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{authId}/{eventId}")
+    @DeleteMapping("/by/event/{eventId}")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<Void> deleteUserEventRecordByAuthIdAndEventId(@PathVariable String authId, @PathVariable String eventId) {
+    public ResponseEntity<Void> deleteUserEventRecordByAuthIdAndEventId(@PathVariable String eventId) {
+        String authId = this.oauthAuditorService.getUserSub();
         log.info("Delete user event record by authId: {} and eventId: {}", authId, eventId);
         this.userHistoryServiceCommand.deleteUserEventRecordByAuthIdAndEventId(authId, eventId);
         return ResponseEntity.ok().build();
