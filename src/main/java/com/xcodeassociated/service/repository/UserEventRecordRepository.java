@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface UserEventRecordRepository extends BaseRepository<UserEventRecord, String> {
     Optional<UserEventRecord> findUserEventRecordById(String id);
+    Optional<UserEventRecord> findUserEventRecordByUserAuthIdAndEventId(String authId, String eventId);
     Page<UserEventRecord> findUserEventRecordsByUserAuthId(String authId, Pageable pageable);
     Page<UserEventRecord> findUserEventRecordsByEventId(String authId, Pageable pageable);
     UserEventRecord save(UserEventRecord userEventRecord);

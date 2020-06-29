@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.SystemException;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -38,6 +40,17 @@ public class UserHistoryService implements UserHistoryServiceQuery, UserHistoryS
     public void deleteUserEventRecord(String id) {
         log.info("Deleting user event record by id: {}", id);
         this.userEventRecordRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteUserEventRecordByAuthIdAndEventId(String authId, String eventId) {
+        log.info("Deleting user event record by authId: {} and eventId: {}", authId, eventId);
+        Optional<UserEventRecord> userEventRecord = this.userEventRecordRepository.findUserEventRecordByUserAuthIdAndEventId(authId, eventId);
+        if (userEventRecord.isPresent()) {
+            this.userEventRecordRepository.deleteById(Objects.requireNonNull(userEventRecord.get().getId()));
+        } else {
+            throw new ServiceException(ErrorCode.E002, "UserEventRecord not found");
+        }
     }
 
     @Override
@@ -82,6 +95,11 @@ public class UserHistoryService implements UserHistoryServiceQuery, UserHistoryS
         log.info("Getting user events by event id: {}", eventId);
         return this.userEventRecordRepository.findUserEventRecordsByEventId(eventId, pageable)
                 .map(this::getUserEventDto);
+    }
+
+    Optional<UserEventRecord> getUserEventForUserAuthIdAndEventId(String authId, String eventId) {
+        log.info("Getting UserEventRecord for authId: {} and eventId: {}", authId, eventId);
+        return this.userEventRecordRepository.findUserEventRecordByUserAuthIdAndEventId(authId, eventId);
     }
 
     private UserEventDto getUserEventDto(UserEventRecord record) {

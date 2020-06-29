@@ -15,4 +15,5 @@ import java.util.List;
 @ToString(callSuper = true)
 public class EventWithCategoryDto extends EventDto {
     private List<EventCategoryDto> categories;
+    private boolean registered;
 }

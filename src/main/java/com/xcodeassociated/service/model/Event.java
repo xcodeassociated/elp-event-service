@@ -1,5 +1,6 @@
 package com.xcodeassociated.service.model;
 
+import com.xcodeassociated.service.model.dto.EventCategoryDto;
 import com.xcodeassociated.service.model.dto.EventDto;
 import com.xcodeassociated.service.model.dto.EventWithCategoryDto;
 import lombok.*;
@@ -40,6 +41,13 @@ public class Event extends ComparableBaseDocument<Event> {
 
     public static Event fromDto(EventDto dto) {
         return new Event().toBuilder()
+                .id(dto.getId())
+                .uuid(dto.getUuid())
+                .createdDate(dto.getCreatedDate())
+                .version(dto.getVersion())
+                .lastModifiedDate(dto.getLastModifiedDate())
+                .createdBy(dto.getCreatedBy())
+                .modifiedBy(dto.getModifiedBy())
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .location(dto.getLocation())
@@ -113,6 +121,26 @@ public class Event extends ComparableBaseDocument<Event> {
                 .location(this.location)
                 .eventCategories(this.eventCategories)
                 .categories(categories.stream().map(EventCategory::toDto).collect(Collectors.toList()))
+                .build();
+    }
+
+    public EventWithCategoryDto toDto(List<EventCategoryDto> categories, boolean registered) {
+        return EventWithCategoryDto.builder()
+                .id(getId())
+                .uuid(getUuid())
+                .createdDate(this.getCreatedDate())
+                .version(this.getVersion())
+                .lastModifiedDate(this.getLastModifiedDate())
+                .createdBy(this.getCreatedBy())
+                .modifiedBy(this.getModifiedBy())
+                .title(this.title)
+                .start(this.start)
+                .stop(this.stop)
+                .description(this.description)
+                .location(this.location)
+                .eventCategories(this.eventCategories)
+                .categories(categories)
+                .registered(registered)
                 .build();
     }
 }

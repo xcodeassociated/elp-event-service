@@ -106,6 +106,14 @@ public class UserHistoryControllerV1 {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{authId}/{eventId}")
+    @PreAuthorize("hasRole('backend_service')")
+    public ResponseEntity<Void> deleteUserEventRecordByAuthIdAndEventId(@PathVariable String authId, @PathVariable String eventId) {
+        log.info("Delete user event record by authId: {} and eventId: {}", authId, eventId);
+        this.userHistoryServiceCommand.deleteUserEventRecordByAuthIdAndEventId(authId, eventId);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping()
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<UserEventRecordDto> registerUserEventRecord(@RequestBody UserEventRecordDto dto) {

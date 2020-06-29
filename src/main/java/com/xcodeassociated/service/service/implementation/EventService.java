@@ -55,6 +55,7 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     private final OauthAuditorServiceInterface oauthAuditorServiceInterface;
     private final EventCategoryService eventCategoryService;
     private final UserDataService userDataService;
+    private final UserHistoryService userHistoryService;
     private final MongoTemplate mongoTemplate;
 
     @Override
@@ -65,9 +66,9 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     }
 
     @Override
-    public Page<EventWithCategoryDto> getAllEventsWithCategories(Pageable pageable) {
+    public Page<EventWithCategoryDto> getAllEventsWithCategories(String authId, Pageable pageable) {
         log.info("Getting all events with categories");
-        return this.mapCategories(this.eventRepository.findAll(pageable));
+        return this.mapEventRegistered(this.mapCategories(this.eventRepository.findAll(pageable)), authId);
     }
 
     @Override
@@ -79,11 +80,11 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     }
 
     @Override
-    public Page<EventWithCategoryDto> getAllEventsByQueryWithCategories(EventSearchDto dto, Pageable pageable) {
+    public Page<EventWithCategoryDto> getAllEventsByQueryWithCategories(EventSearchDto dto, String authId, Pageable pageable) {
         log.info("Getting all events by search dto: {}", dto);
         return Utils.anyNonNull(dto.getLocation())
-                ? this.mapCategories(this.findEventsByQueryWithLocation(dto, pageable))
-                : this.mapCategories(this.findEventsByQueryWithoutLocation(dto, pageable));
+                ? this.mapEventRegistered(this.mapCategories(this.findEventsByQueryWithLocation(dto, pageable)), authId)
+                : this.mapEventRegistered(this.mapCategories(this.findEventsByQueryWithoutLocation(dto, pageable)), authId);
     }
 
     @Override
@@ -111,7 +112,7 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
         EventSearchDto eventSearchDto = this.getEventSearchDtoFromUserData(userData.get(), locationDto);
 
         log.info("Using search dto for user preference event search: {}", eventSearchDto);
-        return this.getAllEventsByQueryWithCategories(eventSearchDto, pageable);
+        return this.getAllEventsByQueryWithCategories(eventSearchDto, authId, pageable);
     }
 
     @Override
@@ -122,9 +123,9 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     }
 
     @Override
-    public Page<EventWithCategoryDto> getAllEventsByTitleWithCategories(String title, Pageable pageable) {
+    public Page<EventWithCategoryDto> getAllEventsByTitleWithCategories(String title, String authId, Pageable pageable) {
         log.info("Getting Events with categories by title: {}", title);
-        return this.mapCategories(this.eventRepository.findEventsByTitleContainingIgnoreCase(title, pageable));
+        return this.mapEventRegistered(this.mapCategories(this.eventRepository.findEventsByTitleContainingIgnoreCase(title, pageable)), authId);
     }
 
     @Override
@@ -142,13 +143,13 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     @Override
     public Page<EventWithCategoryDto> getAllEventsCreatedByWithCategories(String authId, Pageable pageable) {
         log.info("Getting Events with categories created by user: {}", authId);
-        return this.mapCategories(this.getEventsByUser(authId, pageable));
+        return this.mapEventRegistered(this.mapCategories(this.getEventsByUser(authId, pageable)), authId);
     }
 
     @Override
     public Page<EventWithCategoryDto> getAllEventsModifiedByWithCategories(String authId, Pageable pageable) {
         log.info("Getting Events with categories created by user: {}", authId);
-        return this.mapCategories(this.getEventsByModified(authId, pageable));
+        return this.mapEventRegistered(this.mapCategories(this.getEventsByModified(authId, pageable)), authId);
     }
 
     @Override
@@ -158,9 +159,9 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     }
 
     @Override
-    public EventWithCategoryDto getEventByIdWithCategories(String id) {
+    public EventWithCategoryDto getEventByIdWithCategories(String id, String authId) {
         log.info("Getting Event with categories by id: {}", id);
-        return this.mapCategory(this.getById(id));
+        return this.mapEventRegistered(this.mapCategory(this.getById(id)), authId);
     }
 
     @Override
@@ -170,9 +171,9 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     }
 
     @Override
-    public EventWithCategoryDto getEventByUuidWithCategories(String uuid) {
+    public EventWithCategoryDto getEventByUuidWithCategories(String uuid, String authId) {
         log.info("Getting Event with categories by uuid: {}", uuid);
-        return this.mapCategory(this.getByUuid(uuid));
+        return this.mapEventRegistered(this.mapCategory(this.getByUuid(uuid)), authId);
     }
 
     @Override
@@ -278,6 +279,22 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
             log.error("EventSearchDto: {} is not searchable", dto);
             throw new ServiceException(ErrorCode.E002, "EventSearchDto is not searchable");
         }
+    }
+
+    private Page<EventWithCategoryDto> mapEventRegistered(Page<EventWithCategoryDto> events, String authId) {
+        return events.map(e -> {
+            Optional<UserEventRecord> userEventRecord = this.userHistoryService.getUserEventForUserAuthIdAndEventId(authId, e.getId());
+            Event event = Event.fromDto(e);
+            List<EventCategoryDto> eventCategories = e.getCategories();
+            return event.toDto(eventCategories, userEventRecord.isPresent());
+        });
+    }
+
+    private EventWithCategoryDto mapEventRegistered(EventWithCategoryDto e, String authId) {
+        Optional<UserEventRecord> userEventRecord = this.userHistoryService.getUserEventForUserAuthIdAndEventId(authId, e.getId());
+        Event event = Event.fromDto(e);
+        List<EventCategoryDto> eventCategories = e.getCategories();
+        return event.toDto(eventCategories, userEventRecord.isPresent());
     }
 
     private Page<EventWithCategoryDto> mapCategories(Page<Event> events) {
