@@ -13,5 +13,5 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 public class UserEventDto extends BaseEntityDto {
     private String userAuthId;
-    private EventDto eventDto;
+    private EventWithCategoryDto eventDto;
 }

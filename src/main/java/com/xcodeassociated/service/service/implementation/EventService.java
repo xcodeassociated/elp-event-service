@@ -21,6 +21,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
@@ -311,10 +312,14 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     }
 
     private EventWithCategoryDto mapEventRegistered(EventWithCategoryDto e, String authId) {
-        Optional<UserEventRecord> userEventRecord = this.userHistoryService.getUserEventForUserAuthIdAndEventId(authId, e.getId());
-        Event event = Event.fromDto(e);
-        List<EventCategoryDto> eventCategories = e.getCategories();
-        return event.toDto(eventCategories, userEventRecord.isPresent());
+        if (StringUtils.isNoneBlank(authId)) {
+            Optional<UserEventRecord> userEventRecord = this.userHistoryService.getUserEventForUserAuthIdAndEventId(authId, e.getId());
+            Event event = Event.fromDto(e);
+            List<EventCategoryDto> eventCategories = e.getCategories();
+            return event.toDto(eventCategories, userEventRecord.isPresent());
+        } else {
+            return e;
+        }
     }
 
     private Page<EventWithCategoryDto> mapCategories(Page<Event> events) {

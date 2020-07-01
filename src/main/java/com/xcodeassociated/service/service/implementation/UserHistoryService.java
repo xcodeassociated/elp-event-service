@@ -2,7 +2,9 @@ package com.xcodeassociated.service.service.implementation;
 
 import com.xcodeassociated.service.exception.ServiceException;
 import com.xcodeassociated.service.exception.codes.ErrorCode;
+import com.xcodeassociated.service.model.EventCategory;
 import com.xcodeassociated.service.model.UserEventRecord;
+import com.xcodeassociated.service.model.dto.EventWithCategoryDto;
 import com.xcodeassociated.service.model.dto.UserEventDto;
 import com.xcodeassociated.service.model.dto.UserEventRecordDto;
 import com.xcodeassociated.service.repository.EventRepository;
@@ -17,8 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.SystemException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -27,6 +31,7 @@ import java.util.Optional;
 public class UserHistoryService implements UserHistoryServiceQuery, UserHistoryServiceCommand {
     private final UserEventRecordRepository userEventRecordRepository;
     private final EventRepository eventRepository;
+    private final EventCategoryService categoryService;
 
     @Override
     public UserEventRecordDto registerUserEventRecord(UserEventRecordDto dto) {
@@ -104,10 +109,13 @@ public class UserHistoryService implements UserHistoryServiceQuery, UserHistoryS
 
     private UserEventDto getUserEventDto(UserEventRecord record) {
         return this.eventRepository.findEventById(record.getEventId())
-                .map(e -> new UserEventDto().toBuilder()
+                .map(e -> {
+                    List<EventCategory> eventCategories = this.categoryService.getEventCategoryByIdsDocuments(e.getEventCategories().stream().collect(Collectors.toList()));
+                    return new UserEventDto().toBuilder()
                         .userAuthId(record.getUserAuthId())
-                        .eventDto(e.toDto())
-                        .build())
+                        .eventDto(e.toDto(eventCategories))
+                        .build();
+                })
                 .orElseThrow(() -> new ServiceException(ErrorCode.S000, ""));
     }
 }
