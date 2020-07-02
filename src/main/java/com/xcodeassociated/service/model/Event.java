@@ -31,10 +31,13 @@ public class Event extends ComparableBaseDocument<Event> {
 
     private String description;
 
+    @NotNull
     private Double[] location;
 
+    @NotNull
     private Long start;
 
+    @NotNull
     private Long stop;
 
     private Set<String> eventCategories;

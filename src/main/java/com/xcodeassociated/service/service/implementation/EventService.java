@@ -54,7 +54,7 @@ class EventWrapper {
 public class EventService implements EventServiceQuery, EventServiceCommand {
     private final EventRepository eventRepository;
     private final OauthAuditorServiceInterface oauthAuditorServiceInterface;
-    private final EventCategoryService eventCategoryService;
+    private final EventCategoryServiceServiceService eventCategoryService;
     private final UserDataService userDataService;
     private final UserHistoryService userHistoryService;
     private final MongoTemplate mongoTemplate;

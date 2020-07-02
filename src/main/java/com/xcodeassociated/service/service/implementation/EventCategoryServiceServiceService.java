@@ -5,8 +5,8 @@ import com.xcodeassociated.service.exception.codes.ErrorCode;
 import com.xcodeassociated.service.model.EventCategory;
 import com.xcodeassociated.service.model.dto.EventCategoryDto;
 import com.xcodeassociated.service.repository.EventCategoryRepository;
-import com.xcodeassociated.service.service.EventCategoryCommand;
-import com.xcodeassociated.service.service.EventCategoryQuery;
+import com.xcodeassociated.service.service.EventCategoryServiceCommand;
+import com.xcodeassociated.service.service.EventCategoryServiceQuery;
 import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 @Slf4j
 @Transactional
-public class EventCategoryService implements EventCategoryQuery, EventCategoryCommand {
+public class EventCategoryServiceServiceService implements EventCategoryServiceQuery, EventCategoryServiceCommand {
     private final EventCategoryRepository eventCategoryRepository;
     private final OauthAuditorServiceInterface oauthAuditorServiceInterface;
 

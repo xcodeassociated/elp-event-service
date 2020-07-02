@@ -4,7 +4,6 @@ import com.xcodeassociated.service.exception.ServiceException;
 import com.xcodeassociated.service.exception.codes.ErrorCode;
 import com.xcodeassociated.service.model.EventCategory;
 import com.xcodeassociated.service.model.UserEventRecord;
-import com.xcodeassociated.service.model.dto.EventWithCategoryDto;
 import com.xcodeassociated.service.model.dto.UserEventDto;
 import com.xcodeassociated.service.model.dto.UserEventRecordDto;
 import com.xcodeassociated.service.repository.EventRepository;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.SystemException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,7 +29,7 @@ import java.util.stream.Collectors;
 public class UserHistoryService implements UserHistoryServiceQuery, UserHistoryServiceCommand {
     private final UserEventRecordRepository userEventRecordRepository;
     private final EventRepository eventRepository;
-    private final EventCategoryService categoryService;
+    private final EventCategoryServiceServiceService categoryService;
 
     @Override
     public UserEventRecordDto registerUserEventRecord(UserEventRecordDto dto) {

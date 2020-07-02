@@ -3,8 +3,8 @@ package com.xcodeassociated.service.controller.rest;
 import com.xcodeassociated.commons.paging.CustomPageRequest;
 import com.xcodeassociated.commons.paging.SortDirection;
 import com.xcodeassociated.service.model.dto.EventCategoryDto;
-import com.xcodeassociated.service.service.EventCategoryCommand;
-import com.xcodeassociated.service.service.EventCategoryQuery;
+import com.xcodeassociated.service.service.EventCategoryServiceCommand;
+import com.xcodeassociated.service.service.EventCategoryServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,8 +21,8 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/event/api/v1/category")
 public class EventCategoryControllerV1 {
-    private final EventCategoryQuery eventCategoryQuery;
-    private final EventCategoryCommand eventCategoryCommand;
+    private final EventCategoryServiceQuery eventCategoryServiceQuery;
+    private final EventCategoryServiceCommand eventCategoryServiceCommand;
 
     @GetMapping("/paged")
     @PreAuthorize("hasRole('backend_service')")
@@ -34,42 +34,42 @@ public class EventCategoryControllerV1 {
                 page, size, sortBy, sortDirection);
 
         Pageable pageable = new CustomPageRequest(page, size, sortDirection, sortBy).toPageable();
-        return new ResponseEntity<>(this.eventCategoryQuery.getAllCategories(pageable), HttpStatus.OK);
+        return new ResponseEntity<>(this.eventCategoryServiceQuery.getAllCategories(pageable), HttpStatus.OK);
     }
 
     @GetMapping()
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<List<EventCategoryDto>> getAll() {
         log.info("Getting category non-paged");
-        return new ResponseEntity<>(this.eventCategoryQuery.getAllCategories(), HttpStatus.OK);
+        return new ResponseEntity<>(this.eventCategoryServiceQuery.getAllCategories(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<EventCategoryDto> getEventCategoryById(@PathVariable String id) {
         log.info("Getting category by id: {}", id);
-        return new ResponseEntity<>(this.eventCategoryQuery.getEventCategoryById(id), HttpStatus.OK);
+        return new ResponseEntity<>(this.eventCategoryServiceQuery.getEventCategoryById(id), HttpStatus.OK);
     }
 
     @GetMapping("/{ids}")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<List<EventCategoryDto>> getEventCategoryByIds(@PathVariable String[] ids) {
         log.info("Getting categories for ids: {}", List.of(ids));
-        return new ResponseEntity<>(this.eventCategoryQuery.getEventCategoryByIds(List.of(ids)), HttpStatus.OK);
+        return new ResponseEntity<>(this.eventCategoryServiceQuery.getEventCategoryByIds(List.of(ids)), HttpStatus.OK);
     }
 
     @PostMapping("/save")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<EventCategoryDto> saveCategory(@RequestBody EventCategoryDto dto) {
         log.info("Saving category: {}", dto);
-        return new ResponseEntity<>(this.eventCategoryCommand.saveCategory(dto), HttpStatus.OK);
+        return new ResponseEntity<>(this.eventCategoryServiceCommand.saveCategory(dto), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<Void> deleteCategoryById(@PathVariable String id) {
         log.info("Deleting category: {}", id);
-        this.eventCategoryCommand.deleteCategoryById(id);
+        this.eventCategoryServiceCommand.deleteCategoryById(id);
         return ResponseEntity.ok().build();
     }
 }
