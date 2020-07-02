@@ -1,10 +1,8 @@
 package com.xcodeassociated.service.model;
 
 import com.xcodeassociated.service.model.dto.SpotDto;
-import com.xcodeassociated.service.model.dto.UserEventRecordDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;

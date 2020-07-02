@@ -2,11 +2,9 @@ package com.xcodeassociated.service.controller.rest;
 
 import com.xcodeassociated.commons.paging.CustomPageRequest;
 import com.xcodeassociated.commons.paging.SortDirection;
-import com.xcodeassociated.service.model.dto.EventCategoryDto;
 import com.xcodeassociated.service.model.dto.SpotDto;
-import com.xcodeassociated.service.model.dto.UserDataDto;
-import com.xcodeassociated.service.model.dto.UserDataWithCategoryDto;
-import com.xcodeassociated.service.service.*;
+import com.xcodeassociated.service.service.SpotServiceCommand;
+import com.xcodeassociated.service.service.SpotServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
