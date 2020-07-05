@@ -281,20 +281,22 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
                     .collect(Collectors.toList());
 
             Query query = EventQuery.getLocationQuery(dto, pageable, eventIds, location, Metrics.KILOMETERS);
-            log.info("Using query: {}", query);
+            Query countQuery = EventQuery.countLocationQuery(dto, eventIds, location, Metrics.KILOMETERS);
+            log.info("Using query: {} and countQuery: {}", query, countQuery);
 
             List<Event> result = this.mongoTemplate.find(query, Event.class);
-            return PageableExecutionUtils.getPage(result, pageable, () -> this.mongoTemplate.count(query, Event.class));
+            return PageableExecutionUtils.getPage(result, pageable, () -> this.mongoTemplate.count(countQuery, Event.class));
 
         } else if (EventSearchDtoHelper.dtoSearchable(dto)) {
             log.info("Expression is empty, using only location query");
             List<Double> location = List.of(dto.getLocation());
 
             Query query = EventQuery.getLocationQuery(dto, pageable, location, Metrics.KILOMETERS);
-            log.info("Using query: {}", query);
+            Query countQuery = EventQuery.countLocationQuery(dto, location, Metrics.KILOMETERS);
+            log.info("Using query: {} and countQuery: {}", query, countQuery);
 
             List<Event> result = this.mongoTemplate.find(query, Event.class);
-            return PageableExecutionUtils.getPage(result, pageable, () -> this.mongoTemplate.count(query, Event.class));
+            return PageableExecutionUtils.getPage(result, pageable, () -> this.mongoTemplate.count(countQuery, Event.class));
 
         } else {
             log.error("EventSearchDto: {} is not searchable", dto);

@@ -106,6 +106,18 @@ public class EventQuery {
     }
 
     @NotNull
+    public static Query countLocationQuery(EventSearchDto dto, List<String> eventIds, List<Double> location, Metrics metrics) {
+        Point point = new Point(location.get(0), location.get(1));
+        Distance distance = new Distance(dto.getRange(), metrics);
+        Circle circle = new Circle(point, distance);
+        Criteria geoCriteria = Criteria.where("location").withinSphere(circle);
+        Criteria idCriteria = Criteria.where("id").in(eventIds);
+        Query query = Query.query(geoCriteria);
+        query.addCriteria(idCriteria);
+        return query;
+    }
+
+    @NotNull
     public static Query getLocationQuery(EventSearchDto dto, Pageable pageable, List<String> eventIds, List<Double> location, Metrics metrics) {
         Point point = new Point(location.get(0), location.get(1));
         Distance distance = new Distance(dto.getRange(), metrics);
@@ -116,6 +128,15 @@ public class EventQuery {
         query.addCriteria(idCriteria);
         query.with(pageable);
         return query;
+    }
+
+    @NotNull
+    public static Query countLocationQuery(EventSearchDto dto, List<Double> location, Metrics metrics) {
+        Point point = new Point(location.get(0), location.get(1));
+        Distance distance = new Distance(dto.getRange(), metrics);
+        Circle circle = new Circle(point, distance);
+        Criteria geoCriteria = Criteria.where("location").withinSphere(circle);
+        return Query.query(geoCriteria);
     }
 
     @NotNull
