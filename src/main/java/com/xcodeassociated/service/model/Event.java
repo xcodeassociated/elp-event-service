@@ -42,6 +42,27 @@ public class Event extends ComparableBaseDocument<Event> {
 
     private Set<String> eventCategories;
 
+    @Override
+    public boolean compare(Event other) {
+        return StringUtils.equals(this.title, other.getTitle())
+                && StringUtils.equals(this.description, other.getDescription())
+                && Objects.equals(List.of(this.location), List.of(other.getLocation()))
+                && ObjectUtils.compare(this.start, other.getStart()) == 0
+                && ObjectUtils.compare(this.stop, other.getStop()) == 0
+                && this.eventCategories.equals(other.getEventCategories());
+    }
+
+    public static Event creteFromDto(EventDto dto) {
+        return new Event().toBuilder()
+                .title(dto.getTitle())
+                .description(dto.getDescription())
+                .location(dto.getLocation())
+                .start(dto.getStart())
+                .stop(dto.getStop())
+                .eventCategories(dto.getEventCategories())
+                .build();
+    }
+
     public static Event fromDto(EventDto dto) {
         return new Event().toBuilder()
                 .id(dto.getId())
@@ -58,16 +79,6 @@ public class Event extends ComparableBaseDocument<Event> {
                 .stop(dto.getStop())
                 .eventCategories(dto.getEventCategories())
                 .build();
-    }
-
-    @Override
-    public boolean compare(Event other) {
-        return StringUtils.equals(this.title, other.getTitle())
-                && StringUtils.equals(this.description, other.getDescription())
-                && Objects.equals(List.of(this.location), List.of(other.getLocation()))
-                && ObjectUtils.compare(this.start, other.getStart()) == 0
-                && ObjectUtils.compare(this.stop, other.getStop()) == 0
-                && this.eventCategories.equals(other.getEventCategories());
     }
 
     public Event update(EventDto dto) {

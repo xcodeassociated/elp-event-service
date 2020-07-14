@@ -199,7 +199,7 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
         String author = this.oauthAuditorServiceInterface.getModificationAuthor();
         log.info("Creating event by: {},  with dto: {}", author, dto);
 
-        final Event event = Event.fromDto(dto);
+        final Event event = Event.creteFromDto(dto);
         event.setModifiedBy(author);
 
         return this.eventRepository.save(event).toDto();
@@ -211,7 +211,7 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
         log.info("Creating events by: {},  with dto: {}", author, dtos);
         return dtos.stream().map(e -> {
             log.info("Processing event dto: {}", e);
-            Event event = Event.fromDto(e);
+            Event event = Event.creteFromDto(e);
             event.setModifiedBy(author);
             return event;
         }).map(e -> {
