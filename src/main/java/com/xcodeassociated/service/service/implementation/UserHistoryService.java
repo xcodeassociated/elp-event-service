@@ -32,9 +32,9 @@ public class UserHistoryService implements UserHistoryServiceQuery, UserHistoryS
     public UserEventRecordDto registerUserEventRecord(UserEventRecordDto dto) {
         log.info("Registering user event record: {}", dto);
 
-        return Optional.of(this.userEventRecordRepository.save(this.createUserEventRecordFromDto(dto)))
-                .orElseThrow(() -> new ServiceException(ErrorCode.S000, ""))
-                .toDto();
+        Optional<UserEventRecord> record = this.userEventRecordRepository.findUserEventRecordByUserAuthIdAndEventId(dto.getUserAuthId(), dto.getEventId());
+        return record.isPresent() ?
+                record.get().toDto() : this.userEventRecordRepository.save(this.createUserEventRecordFromDto(dto)).toDto();
     }
 
     @Override

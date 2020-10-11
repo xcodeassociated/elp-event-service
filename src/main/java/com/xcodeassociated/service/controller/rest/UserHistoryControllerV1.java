@@ -121,7 +121,6 @@ public class UserHistoryControllerV1 {
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<UserEventRecordDto> registerUserEventRecord(@RequestBody UserEventRecordDto dto) {
         log.info("Register user event record: {}", dto);
-        this.userHistoryServiceCommand.registerUserEventRecord(dto);
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(this.userHistoryServiceCommand.registerUserEventRecord(dto), HttpStatus.OK);
     }
 }
