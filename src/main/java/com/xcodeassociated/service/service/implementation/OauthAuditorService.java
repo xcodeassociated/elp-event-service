@@ -2,7 +2,7 @@ package com.xcodeassociated.service.service.implementation;
 
 import com.xcodeassociated.service.exception.ServiceException;
 import com.xcodeassociated.service.exception.codes.ErrorCode;
-import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
+import com.xcodeassociated.service.service.query.OauthAuditorServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.KeycloakPrincipal;
@@ -20,7 +20,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Slf4j
 @Transactional
-public class OauthAuditorService implements OauthAuditorServiceInterface {
+public class OauthAuditorService implements OauthAuditorServiceQuery {
     private final AuditorAware<String> auditorProviderMongo;
 
     @Override

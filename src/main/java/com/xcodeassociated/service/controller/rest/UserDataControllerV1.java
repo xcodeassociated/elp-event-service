@@ -1,10 +1,9 @@
 package com.xcodeassociated.service.controller.rest;
 
-import com.xcodeassociated.service.model.dto.UserDataDto;
-import com.xcodeassociated.service.model.dto.UserDataWithCategoryDto;
-import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
-import com.xcodeassociated.service.service.UserDataServiceCommand;
-import com.xcodeassociated.service.service.UserDataServiceQuery;
+import com.xcodeassociated.service.model.domain.dto.UserDataDto;
+import com.xcodeassociated.service.service.command.UserDataServiceCommand;
+import com.xcodeassociated.service.service.query.OauthAuditorServiceQuery;
+import com.xcodeassociated.service.service.query.UserDataServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserDataControllerV1 {
     private final UserDataServiceQuery userDataServiceQuery;
     private final UserDataServiceCommand userDataServiceCommand;
-    private final OauthAuditorServiceInterface oauthAuditorService;
+    private final OauthAuditorServiceQuery oauthAuditorService;
 
     @GetMapping()
     @PreAuthorize("hasRole('backend_service')")
@@ -29,26 +28,11 @@ public class UserDataControllerV1 {
         return new ResponseEntity<>(this.userDataServiceQuery.getUserDataByAuthId(authId), HttpStatus.OK);
     }
 
-    @GetMapping("/data")
-    @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId() {
-        String authId = this.oauthAuditorService.getUserSub();
-        log.info("Getting user data with category for auth id: {}", authId);
-        return new ResponseEntity<>(this.userDataServiceQuery.getUserDataWithCategoryByAuthId(authId), HttpStatus.OK);
-    }
-
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<UserDataDto> getUserDataByAuthId(@PathVariable String id) {
         log.info("Getting user data for auth id: {}", id);
         return new ResponseEntity<>(this.userDataServiceQuery.getUserDataByAuthId(id), HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}/data")
-    @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<UserDataWithCategoryDto> getUserDataWithCategoryByAuthId(@PathVariable String id) {
-        log.info("Getting user data with category for auth id: {}", id);
-        return new ResponseEntity<>(this.userDataServiceQuery.getUserDataWithCategoryByAuthId(id), HttpStatus.OK);
     }
 
     @PostMapping("/save/{id}")

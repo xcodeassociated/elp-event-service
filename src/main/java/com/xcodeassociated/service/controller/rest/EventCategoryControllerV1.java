@@ -2,9 +2,9 @@ package com.xcodeassociated.service.controller.rest;
 
 import com.xcodeassociated.commons.paging.CustomPageRequest;
 import com.xcodeassociated.commons.paging.SortDirection;
-import com.xcodeassociated.service.model.dto.EventCategoryDto;
-import com.xcodeassociated.service.service.EventCategoryServiceCommand;
-import com.xcodeassociated.service.service.EventCategoryServiceQuery;
+import com.xcodeassociated.service.model.domain.dto.EventCategoryDto;
+import com.xcodeassociated.service.service.command.EventCategoryServiceCommand;
+import com.xcodeassociated.service.service.query.EventCategoryServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -37,13 +38,6 @@ public class EventCategoryControllerV1 {
         return new ResponseEntity<>(this.eventCategoryServiceQuery.getAllCategories(pageable), HttpStatus.OK);
     }
 
-    @GetMapping()
-    @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<List<EventCategoryDto>> getAll() {
-        log.info("Getting category non-paged");
-        return new ResponseEntity<>(this.eventCategoryServiceQuery.getAllCategories(), HttpStatus.OK);
-    }
-
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<EventCategoryDto> getEventCategoryById(@PathVariable String id) {
@@ -55,7 +49,7 @@ public class EventCategoryControllerV1 {
     @PreAuthorize("hasRole('backend_service')")
     public ResponseEntity<List<EventCategoryDto>> getEventCategoryByIds(@PathVariable String[] ids) {
         log.info("Getting categories for ids: {}", List.of(ids));
-        return new ResponseEntity<>(this.eventCategoryServiceQuery.getEventCategoryByIds(List.of(ids)), HttpStatus.OK);
+        return new ResponseEntity<>(new ArrayList<>(this.eventCategoryServiceQuery.getEventCategoryByIds(List.of(ids))), HttpStatus.OK);
     }
 
     @PostMapping("/save")

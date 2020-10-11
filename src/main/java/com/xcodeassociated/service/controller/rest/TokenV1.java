@@ -1,6 +1,6 @@
 package com.xcodeassociated.service.controller.rest;
 
-import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
+import com.xcodeassociated.service.service.query.OauthAuditorServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @RequestMapping("/event/api/v1/token")
 public class TokenV1 {
-    private final OauthAuditorServiceInterface oauthAuditorService;
+    private final OauthAuditorServiceQuery oauthAuditorService;
 
     @GetMapping("/whoami")
     @PreAuthorize("hasRole('backend_service')")

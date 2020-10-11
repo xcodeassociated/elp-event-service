@@ -4,7 +4,7 @@ import com.xcodeassociated.events.model.KafkaEvent;
 import com.xcodeassociated.service.controller.kafka.KafkaConsumerInterface;
 import com.xcodeassociated.service.exception.ValidationException;
 import com.xcodeassociated.service.exception.codes.ErrorCode;
-import com.xcodeassociated.service.service.KafkaEventServiceInterface;
+import com.xcodeassociated.service.service.kafka.KafkaEventServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;

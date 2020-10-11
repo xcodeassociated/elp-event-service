@@ -1,6 +1,6 @@
 package com.xcodeassociated.service.service.implementation;
 
-import com.xcodeassociated.service.service.AsycServiceCommand;
+import com.xcodeassociated.service.service.command.AsycServiceCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

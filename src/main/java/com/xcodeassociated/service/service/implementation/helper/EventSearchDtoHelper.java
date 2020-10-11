@@ -2,7 +2,7 @@ package com.xcodeassociated.service.service.implementation.helper;
 
 import com.xcodeassociated.service.exception.ServiceException;
 import com.xcodeassociated.service.exception.codes.ErrorCode;
-import com.xcodeassociated.service.model.dto.EventSearchDto;
+import com.xcodeassociated.service.model.domain.dto.EventSearchDto;
 import com.xcodeassociated.service.utils.Utils;
 import org.apache.commons.lang3.StringUtils;
 

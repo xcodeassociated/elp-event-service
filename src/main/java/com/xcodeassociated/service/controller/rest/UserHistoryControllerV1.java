@@ -2,11 +2,11 @@ package com.xcodeassociated.service.controller.rest;
 
 import com.xcodeassociated.commons.paging.CustomPageRequest;
 import com.xcodeassociated.commons.paging.SortDirection;
-import com.xcodeassociated.service.model.dto.UserEventDto;
-import com.xcodeassociated.service.model.dto.UserEventRecordDto;
-import com.xcodeassociated.service.service.OauthAuditorServiceInterface;
-import com.xcodeassociated.service.service.UserHistoryServiceCommand;
-import com.xcodeassociated.service.service.UserHistoryServiceQuery;
+import com.xcodeassociated.service.model.domain.dto.UserEventDto;
+import com.xcodeassociated.service.model.domain.dto.UserEventRecordDto;
+import com.xcodeassociated.service.service.command.UserHistoryServiceCommand;
+import com.xcodeassociated.service.service.query.OauthAuditorServiceQuery;
+import com.xcodeassociated.service.service.query.UserHistoryServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserHistoryControllerV1 {
     private final UserHistoryServiceQuery userHistoryServiceQuery;
     private final UserHistoryServiceCommand userHistoryServiceCommand;
-    private final OauthAuditorServiceInterface oauthAuditorService;
+    private final OauthAuditorServiceQuery oauthAuditorService;
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")

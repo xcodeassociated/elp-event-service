@@ -2,9 +2,9 @@ package com.xcodeassociated.service.controller.rest;
 
 import com.xcodeassociated.commons.paging.CustomPageRequest;
 import com.xcodeassociated.commons.paging.SortDirection;
-import com.xcodeassociated.service.model.dto.SpotDto;
-import com.xcodeassociated.service.service.SpotServiceCommand;
-import com.xcodeassociated.service.service.SpotServiceQuery;
+import com.xcodeassociated.service.model.domain.dto.SpotDto;
+import com.xcodeassociated.service.service.command.SpotServiceCommand;
+import com.xcodeassociated.service.service.query.SpotServiceQuery;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,21 +37,21 @@ public class SpotControllerV1 {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<SpotDto> getUserDataByAuthId(@PathVariable String id) {
+    public ResponseEntity<SpotDto> getSpot(@PathVariable String id) {
         log.info("Getting spot by id: {}", id);
         return new ResponseEntity<>(this.spotServiceQuery.getSpotById(id), HttpStatus.OK);
     }
 
     @PostMapping("/save")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<SpotDto> saveUserDataByToken(@RequestBody SpotDto dto) {
+    public ResponseEntity<SpotDto> saveSpot(@RequestBody SpotDto dto) {
         log.info("Saving spot by dto: {}", dto);
         return new ResponseEntity<>(this.spotServiceCommand.saveSpot(dto), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('backend_service')")
-    public ResponseEntity<Void> deleteUserDataByAuthId(@PathVariable String id) {
+    public ResponseEntity<Void> deleteSpot(@PathVariable String id) {
         log.info("Deleting user data for auth id: {}", id);
         this.spotServiceCommand.deleteSpotById(id);
         return ResponseEntity.ok().build();

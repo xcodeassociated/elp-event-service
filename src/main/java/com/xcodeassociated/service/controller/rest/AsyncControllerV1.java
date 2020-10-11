@@ -1,6 +1,6 @@
 package com.xcodeassociated.service.controller.rest;
 
-import com.xcodeassociated.service.service.AsycServiceCommand;
+import com.xcodeassociated.service.service.command.AsycServiceCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

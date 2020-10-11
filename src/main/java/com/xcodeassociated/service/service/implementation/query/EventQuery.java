@@ -3,9 +3,9 @@ package com.xcodeassociated.service.service.implementation.query;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.xcodeassociated.service.exception.ServiceException;
 import com.xcodeassociated.service.exception.codes.ErrorCode;
-import com.xcodeassociated.service.model.QEvent;
-import com.xcodeassociated.service.model.dto.BaseEntityDto;
-import com.xcodeassociated.service.model.dto.EventSearchDto;
+import com.xcodeassociated.service.model.db.QEventDocument;
+import com.xcodeassociated.service.model.db.dto.BaseEntityDto;
+import com.xcodeassociated.service.model.domain.dto.EventSearchDto;
 import com.xcodeassociated.service.service.implementation.helper.EventSearchDtoHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +36,7 @@ public class EventQuery {
     }
 
     private static Optional<BooleanExpression> toPredicate(EventSearchDto dto) {
-        QEvent q = QEvent.event;
+        QEventDocument q = QEventDocument.eventDocument;
         return Stream.of(
                 Optional.ofNullable(dto.getId())
                         .filter(StringUtils::isNotBlank)
@@ -73,7 +73,7 @@ public class EventQuery {
     }
 
     private static Optional<BooleanExpression> toPredicateActive(EventSearchDto dto, Long currentMillis) {
-        QEvent q = QEvent.event;
+        QEventDocument q = QEventDocument.eventDocument;
         return Stream.of(
                 Optional.ofNullable(dto.getId())
                         .filter(StringUtils::isNotBlank)
