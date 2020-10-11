@@ -11,9 +11,9 @@ import java.util.Optional;
 
 public interface EventRepository {
     @NotNull
-    Page<Event> findAll(@NotNull Pageable pageable);
+    Page<Event> findAll(UserDetailsParams userDetailsParams, @NotNull Pageable pageable);
 
-    Page<Event> findAllEventsByStopAfter(Long millis, Pageable pageable);
+    Page<Event> findAllEventsByStopAfter(Long millis, UserDetailsParams userDetailsParams, Pageable pageable);
 
     Optional<Event> findEventById(String id);
 
@@ -28,11 +28,7 @@ public interface EventRepository {
 
     void deleteById(String id);
 
-    Page<Event> getAllEventsByQuery(EventSearchDto dto, Pageable pageable);
-
-    Page<Event> findEventsByQueryWithoutLocation(EventSearchDto dto, boolean active, Pageable pageable);
-
-    Page<Event> findEventsByQueryWithLocation(EventSearchDto dto, boolean active, Pageable pageable);
+    Page<Event> getAllEventsByQuery(EventSearchDto dto, UserDetailsParams userDetailsParams, Pageable pageable);
 
     Page<Event> getEventsByUser(String user, Pageable pageable);
 

@@ -16,6 +16,8 @@ public interface UserEventRecordDocumentRepository extends BaseDocumentRepositor
 
     Page<UserEventRecordDocument> findUserEventRecordDocumentsByEventId(String authId, Pageable pageable);
 
+    boolean existsUserEventRecordDocumentByUserAuthIdAndEventId(String authId, String eventId);
+
     @NotNull
     UserEventRecordDocument save(@NotNull UserEventRecordDocument userEventRecordDocument);
 

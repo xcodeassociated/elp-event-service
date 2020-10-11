@@ -11,6 +11,7 @@ import com.xcodeassociated.service.model.domain.dto.EventDto;
 import com.xcodeassociated.service.model.domain.dto.EventSearchDto;
 import com.xcodeassociated.service.model.domain.dto.LocationDto;
 import com.xcodeassociated.service.repository.domain.EventRepository;
+import com.xcodeassociated.service.repository.domain.UserDetailsParams;
 import com.xcodeassociated.service.repository.domain.provider.DomainObjectUtils;
 import com.xcodeassociated.service.service.command.EventServiceCommand;
 import com.xcodeassociated.service.service.query.EventServiceQuery;
@@ -38,28 +39,47 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
     private final UserDataService userDataService;
 
     @Override
-    public Page<EventDto> getAllEvents(Pageable pageable) {
+    public Page<EventDto> getAllEvents(boolean includeUserDetails, Pageable pageable) {
         log.info("Getting all events");
 
-        return this.eventRepository.findAll(pageable).map(Event::toDto);
+        UserDetailsParams userDetailsParams = UserDetailsParams.builder()
+                .userAuthId(this.oauthAuditorServiceQuery.getModificationAuthor())
+                .build();
+
+        return includeUserDetails ?
+                this.eventRepository.findAll(userDetailsParams, pageable).map(Event::toDto)
+                : this.eventRepository.findAll(null, pageable).map(Event::toDto);
     }
 
     @Override
-    public Page<EventDto> getAllActiveEvents(Pageable pageable) {
+    public Page<EventDto> getAllActiveEvents(boolean includeUserDetails, Pageable pageable) {
         log.info("Getting all active events");
 
         Long currentMillis = System.currentTimeMillis();
-        return this.eventRepository.findAllEventsByStopAfter(currentMillis, pageable).map(Event::toDto);
+        UserDetailsParams userDetailsParams = UserDetailsParams.builder()
+                .userAuthId(this.oauthAuditorServiceQuery.getModificationAuthor())
+                .build();
+
+        return includeUserDetails ?
+                this.eventRepository.findAllEventsByStopAfter(currentMillis, userDetailsParams, pageable).map(Event::toDto)
+                : this.eventRepository.findAllEventsByStopAfter(currentMillis, null, pageable).map(Event::toDto);
     }
 
     @Override
-    public Page<EventDto> getAllEventsByQuery(EventSearchDto dto, Pageable pageable) {
+    public Page<EventDto> getAllEventsByQuery(EventSearchDto dto, boolean includeUserDetails, Pageable pageable) {
         log.info("Getting all events by search dto: {}", dto);
-        return this.eventRepository.getAllEventsByQuery(dto, pageable).map(Event::toDto);
+
+        UserDetailsParams userDetailsParams = UserDetailsParams.builder()
+                .userAuthId(this.oauthAuditorServiceQuery.getModificationAuthor())
+                .build();
+
+        return includeUserDetails ?
+                this.eventRepository.getAllEventsByQuery(dto, userDetailsParams, pageable).map(Event::toDto)
+                : this.eventRepository.getAllEventsByQuery(dto, null, pageable).map(Event::toDto);
     }
 
     @Override
-    public Page<EventDto> getAllEventsByPreference(String authId, LocationDto locationDto, Pageable pageable) {
+    public Page<EventDto> getAllEventsByPreference(String authId, LocationDto locationDto, boolean includeUserDetails, Pageable pageable) {
         log.info("Getting all events by user preference for user authId: {}", authId);
         Optional<UserData> userData = this.userDataService.getUserDataOptionalByAuthId(authId);
         if (userData.isEmpty()) {
@@ -69,7 +89,7 @@ public class EventService implements EventServiceQuery, EventServiceCommand {
         EventSearchDto eventSearchDto = this.getEventSearchDtoFromUserData(userData.get(), locationDto, true);
 
         log.info("Using search dto for user preference event search: {}", eventSearchDto);
-        return this.getAllEventsByQuery(eventSearchDto, pageable);
+        return this.getAllEventsByQuery(eventSearchDto, includeUserDetails, pageable);
     }
 
     @Override

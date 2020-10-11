@@ -1,10 +1,7 @@
 package com.xcodeassociated.service.model.domain.dto;
 
 import com.xcodeassociated.service.model.db.dto.BaseEntityDto;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
@@ -15,10 +12,17 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 @ToString(callSuper = true)
 public class EventDto extends BaseEntityDto {
+    @Data
+    @Builder
+    public static class UserDetailsDto {
+        private Boolean registered;
+    }
+
     private String title;
     private String description;
     private Double[] location;
     private Long start;
     private Long stop;
     private List<EventCategoryDto> categories;
+    private UserDetailsDto userDetails;
 }

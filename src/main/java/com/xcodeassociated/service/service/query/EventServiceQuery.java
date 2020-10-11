@@ -7,13 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface EventServiceQuery {
-    Page<EventDto> getAllEvents(Pageable pageable);
-    Page<EventDto> getAllActiveEvents(Pageable pageable);
+    Page<EventDto> getAllEvents(boolean includeUserDetails, Pageable pageable);
+    Page<EventDto> getAllActiveEvents(boolean includeUserDetails, Pageable pageable);
     Page<EventDto> getAllEventsByTitle(String title, Pageable pageable);
     Page<EventDto> getAllEventsCreatedBy(String authId, Pageable pageable);
     Page<EventDto> getAllEventsModifiedBy(String authId, Pageable pageable);
     EventDto getEventById(String id);
     EventDto getEventByUuid(String uuid);
-    Page<EventDto> getAllEventsByQuery(EventSearchDto dto, Pageable pageable);
-    Page<EventDto> getAllEventsByPreference(String authId, LocationDto locationDto, Pageable pageable);
+    Page<EventDto> getAllEventsByQuery(EventSearchDto dto, boolean includeUserDetails, Pageable pageable);
+    Page<EventDto> getAllEventsByPreference(String authId, LocationDto locationDto, boolean includeUserDetails, Pageable pageable);
 }

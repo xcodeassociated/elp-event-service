@@ -7,6 +7,7 @@ import lombok.experimental.SuperBuilder;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Value
@@ -16,6 +17,19 @@ import java.util.stream.Collectors;
 @ToString(callSuper = true)
 @AllArgsConstructor
 public class Event extends BaseDomainObject {
+    @Value
+    @With
+    @Builder
+    public static class UserDetails {
+        private final Boolean registered;
+
+        EventDto.UserDetailsDto toDto() {
+            return EventDto.UserDetailsDto.builder()
+                    .registered(this.getRegistered())
+                    .build();
+        }
+    }
+
     @NotNull
     private final String title;
 
@@ -31,6 +45,8 @@ public class Event extends BaseDomainObject {
     private final Long stop;
 
     private final List<EventCategory> eventCategories;
+
+    private final Optional<UserDetails> userDetails;
 
     public EventDto toDto() {
         return EventDto.builder()
@@ -49,6 +65,9 @@ public class Event extends BaseDomainObject {
                 .categories(this.getEventCategories().stream()
                         .map(EventCategory::toDto)
                         .collect(Collectors.toList()))
+                .userDetails(this.getUserDetails()
+                        .map(UserDetails::toDto)
+                        .orElse(null))
                 .build();
     }
 }

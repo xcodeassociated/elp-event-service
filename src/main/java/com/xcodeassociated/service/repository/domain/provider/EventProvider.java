@@ -12,8 +12,10 @@ import com.xcodeassociated.service.model.db.QEventDocument;
 import com.xcodeassociated.service.model.domain.Event;
 import com.xcodeassociated.service.model.domain.dto.EventSearchDto;
 import com.xcodeassociated.service.repository.db.EventDocumentRepository;
+import com.xcodeassociated.service.repository.db.UserEventRecordDocumentRepository;
 import com.xcodeassociated.service.repository.domain.EventCategoryRepository;
 import com.xcodeassociated.service.repository.domain.EventRepository;
+import com.xcodeassociated.service.repository.domain.UserDetailsParams;
 import com.xcodeassociated.service.service.implementation.helper.EventSearchDtoHelper;
 import com.xcodeassociated.service.service.implementation.query.EventQuery;
 import com.xcodeassociated.service.utils.Utils;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -41,16 +44,17 @@ import java.util.stream.Collectors;
 public class EventProvider implements EventRepository {
     private final EventDocumentRepository documentRepository;
     private final EventCategoryRepository categoryRepository;
+    private final UserEventRecordDocumentRepository userEventRecordDocumentRepository;
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public @NotNull Page<Event> findAll(@NotNull Pageable pageable) {
-        return this.documentRepository.findAll(pageable).map(this::toDomain);
+    public @NotNull Page<Event> findAll(UserDetailsParams userDetailsParams, @NotNull Pageable pageable) {
+        return this.documentRepository.findAll(pageable).map(e -> this.toDomain(e, userDetailsParams));
     }
 
     @Override
-    public Page<Event> findAllEventsByStopAfter(Long millis, Pageable pageable) {
-        return this.documentRepository.findAllEventsByStopAfter(millis, pageable).map(this::toDomain);
+    public Page<Event> findAllEventsByStopAfter(Long millis, UserDetailsParams userDetailsParams, Pageable pageable) {
+        return this.documentRepository.findAllEventsByStopAfter(millis, pageable).map(e -> this.toDomain(e, userDetailsParams));
     }
 
     @Override
@@ -84,23 +88,47 @@ public class EventProvider implements EventRepository {
     }
 
     @Override
-    public Page<Event> getAllEventsByQuery(EventSearchDto dto, Pageable pageable) {
+    public Page<Event> getAllEventsByQuery(EventSearchDto dto, UserDetailsParams userDetailsParams, Pageable pageable) {
         return Utils.anyNonNull(dto.getLocation())
-                ? this.findEventsByQueryWithLocation(dto, dto.getActive(), pageable)
-                : this.findEventsByQueryWithoutLocation(dto, dto.getActive(), pageable);
+                ? this.findEventsByQueryWithLocation(dto, dto.getActive(), userDetailsParams, pageable)
+                : this.findEventsByQueryWithoutLocation(dto, dto.getActive(), userDetailsParams, pageable);
     }
 
     @Override
-    public Page<Event> findEventsByQueryWithoutLocation(EventSearchDto dto, boolean active, Pageable pageable) {
-        Long currentMillis = System.currentTimeMillis();
-        BooleanExpression expression = EventQuery.toPredicate(dto, currentMillis, active)
-                .orElseThrow(() -> new ServiceException(ErrorCode.S000, "BooleanExpression empty"));
-        log.info("Using expression: {}", expression);
+    public Page<Event> getEventsByModified(String user, Pageable pageable) {
+        // note: ReactiveQueryByExampleExecutor used via example document object
+        QEventDocument q = QEventDocument.eventDocument;
+        Predicate expression = new BooleanBuilder()
+                .and(q.modifiedBy.endsWithIgnoreCase(user))
+                .getValue();
+
         return this.documentRepository.findAll(expression, pageable).map(this::toDomain);
     }
 
     @Override
-    public Page<Event> findEventsByQueryWithLocation(EventSearchDto dto, boolean active, Pageable pageable) {
+    public Page<Event> getEventsByUser(String user, Pageable pageable) {
+        // note: ReactiveQueryByExampleExecutor used via example document object
+        EventDocument example = new EventDocument().toBuilder()
+                .createdBy(user)
+                .build();
+
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withIgnorePaths("uuid")
+                .withIgnoreNullValues()
+                .withIgnoreCase();
+
+        return this.documentRepository.findAll(Example.of(example, matcher), pageable).map(this::toDomain);
+    }
+
+    private Page<Event> findEventsByQueryWithoutLocation(EventSearchDto dto, boolean active, UserDetailsParams userDetailsParams, Pageable pageable) {
+        Long currentMillis = System.currentTimeMillis();
+        BooleanExpression expression = EventQuery.toPredicate(dto, currentMillis, active)
+                .orElseThrow(() -> new ServiceException(ErrorCode.S000, "BooleanExpression empty"));
+        log.info("Using expression: {}", expression);
+        return this.documentRepository.findAll(expression, pageable).map(e -> this.toDomain(e, userDetailsParams));
+    }
+
+    private Page<Event> findEventsByQueryWithLocation(EventSearchDto dto, boolean active, UserDetailsParams userDetailsParams, Pageable pageable) {
         Long currentMillis = System.currentTimeMillis();
         Optional<BooleanExpression> expression = EventQuery.toPredicate(dto, currentMillis, active);
         if (expression.isPresent()) {
@@ -118,7 +146,7 @@ public class EventProvider implements EventRepository {
 
             List<EventDocument> result = this.mongoTemplate.find(query, EventDocument.class);
             return PageableExecutionUtils.getPage(result, pageable, () -> this.mongoTemplate.count(countQuery, EventDocument.class))
-                    .map(this::toDomain);
+                    .map(e -> this.toDomain(e, userDetailsParams));
 
         } else if (EventSearchDtoHelper.dtoSearchable(dto)) {
             log.info("Expression is empty, using only location query");
@@ -130,7 +158,7 @@ public class EventProvider implements EventRepository {
 
             List<EventDocument> result = this.mongoTemplate.find(query, EventDocument.class);
             return PageableExecutionUtils.getPage(result, pageable, () -> this.mongoTemplate.count(countQuery, EventDocument.class))
-                    .map(this::toDomain);
+                    .map(e -> this.toDomain(e, userDetailsParams));
 
         } else {
             log.error("EventSearchDto: {} is not searchable", dto);
@@ -138,35 +166,15 @@ public class EventProvider implements EventRepository {
         }
     }
 
-    @Override
-    public Page<Event> getEventsByModified(String user, Pageable pageable) {
-        // note: ReactiveQueryByExampleExecutor used via example document object
-        QEventDocument q = QEventDocument.eventDocument;
-        Predicate expression = new BooleanBuilder()
-                .and(q.modifiedBy.endsWithIgnoreCase(user))
-                .getValue();
-
-        return this.documentRepository.findAll(expression, pageable).map(this::toDomain);
-    }
-
-
-    @Override
-    public Page<Event> getEventsByUser(String user, Pageable pageable) {
-        // note: ReactiveQueryByExampleExecutor used via example document object
-        EventDocument example = new EventDocument().toBuilder()
-                .createdBy(user)
-                .build();
-
-        ExampleMatcher matcher = ExampleMatcher.matching()
-                .withIgnorePaths("uuid")
-                .withIgnoreNullValues()
-                .withIgnoreCase();
-
-        return this.documentRepository.findAll(Example.of(example, matcher), pageable).map(this::toDomain);
-    }
-
     private Event toDomain(EventDocument document) {
+        return this.toDomain(document, null);
+    }
+
+    private Event toDomain(EventDocument document, UserDetailsParams userDetailsParams) {
         var builder = DomainObjectUtils.toBaseDomainObject(Event.builder(), document);
+
+        Optional<Event.UserDetails> userDetails = Objects.isNull(userDetailsParams)
+                ? Optional.empty() : Optional.of(this.processUserDetails(document.getId(), userDetailsParams));
 
         return builder
                 .title(document.getTitle())
@@ -175,6 +183,14 @@ public class EventProvider implements EventRepository {
                 .start(document.getStart())
                 .stop(document.getStop())
                 .eventCategories(this.categoryRepository.findEventCategoryByIdIn(new ArrayList<>(document.getEventCategories())))
+                .userDetails(userDetails)
+                .build();
+    }
+
+    private Event.UserDetails processUserDetails(String eventId, UserDetailsParams userDetailsParams) {
+        return Event.UserDetails.builder()
+                .registered(userEventRecordDocumentRepository.existsUserEventRecordDocumentByUserAuthIdAndEventId
+                        (userDetailsParams.getUserAuthId(), eventId))
                 .build();
     }
 
