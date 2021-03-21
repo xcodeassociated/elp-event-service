@@ -12,6 +12,7 @@ plugins {
 	id 'maven'
 	id 'java-library'
 	id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
+	id 'idea'
 }
 
 group = 'com.xcodeassociated'
@@ -46,8 +47,15 @@ ext {
 sourceSets {
 	main {
 		java {
-			srcDir "$buildDir/generated/source/app/main"
+			srcDir "$buildDir/generated/sources/annotationProcessor/java/main"
 		}
+	}
+}
+
+idea {
+	module {
+		sourceDirs += file("$buildDir/generated/sources/annotationProcessor/java/main")
+		generatedSourceDirs += file("$buildDir/generated/sources/annotationProcessor/java/main")
 	}
 }
 
@@ -99,7 +107,7 @@ project.afterEvaluate {
 }
 
 querydsl {
-	querydslSourcesDir = 'build/generated/sources/annotationProcessor/java/main'
+	querydslSourcesDir = "$buildDir/generated/sources/annotationProcessor/java/main"
 	springDataMongo = true
 }
 
@@ -112,7 +120,6 @@ dependencyManagement {
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
 	}
 }
-
 
 test {
 	useJUnitPlatform()
