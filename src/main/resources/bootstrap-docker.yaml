@@ -20,7 +20,7 @@ management:
   metrics:
     export:
       influx:
-        enabled: true
+        enabled: false
 
 eureka:
   client:

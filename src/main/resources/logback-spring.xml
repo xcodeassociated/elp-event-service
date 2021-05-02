@@ -17,7 +17,7 @@
             </fileNamePattern>
             <maxFileSize>5MB</maxFileSize>
             <maxHistory>60</maxHistory>
-            <totalSizeCap>20GB</totalSizeCap>
+            <totalSizeCap>500MB</totalSizeCap>
         </rollingPolicy>
         <encoder>
             <pattern>${defaultPattern}</pattern>
@@ -25,41 +25,41 @@
     </appender>
 
     <springProfile name="docker">
-        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-            <destination>logstash:9100</destination>
-            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-                <providers>
-                    <mdc/>
-                    <pattern>
-                        <pattern>
-                            {
-                                "application": "${projectName}",
-                                "host": "${HOSTNAME}",
-                                "active-profile": "${spring.profiles.active}",
-                                "timestamp": "%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZ}",
-                                "logger": "%logger",
-                                "thread": "%thread",
-                                "level": "%level",
-                                "message": "%message"
-                            }
-                        </pattern>
-                    </pattern>
-                    <stackTrace>
-                        <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
-                            <maxDepthPerThrowable>80</maxDepthPerThrowable>
-                            <maxLength>8192</maxLength>
-                            <shortenedClassNameLength>80</shortenedClassNameLength>
-                            <rootCauseFirst>true</rootCauseFirst>
-                        </throwableConverter>
-                    </stackTrace>
-                </providers>
-            </encoder>
-        </appender>
+<!--        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">-->
+<!--            <destination>logstash:9100</destination>-->
+<!--            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+<!--                <providers>-->
+<!--                    <mdc/>-->
+<!--                    <pattern>-->
+<!--                        <pattern>-->
+<!--                            {-->
+<!--                                "application": "${projectName}",-->
+<!--                                "host": "${HOSTNAME}",-->
+<!--                                "active-profile": "${spring.profiles.active}",-->
+<!--                                "timestamp": "%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZ}",-->
+<!--                                "logger": "%logger",-->
+<!--                                "thread": "%thread",-->
+<!--                                "level": "%level",-->
+<!--                                "message": "%message"-->
+<!--                            }-->
+<!--                        </pattern>-->
+<!--                    </pattern>-->
+<!--                    <stackTrace>-->
+<!--                        <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">-->
+<!--                            <maxDepthPerThrowable>80</maxDepthPerThrowable>-->
+<!--                            <maxLength>8192</maxLength>-->
+<!--                            <shortenedClassNameLength>80</shortenedClassNameLength>-->
+<!--                            <rootCauseFirst>true</rootCauseFirst>-->
+<!--                        </throwableConverter>-->
+<!--                    </stackTrace>-->
+<!--                </providers>-->
+<!--            </encoder>-->
+<!--        </appender>-->
 
         <root level="INFO">
             <appender-ref ref="FILE"/>
             <appender-ref ref="STDOUT"/>
-            <appender-ref ref="LOGSTASH" />
+<!--            <appender-ref ref="LOGSTASH" />-->
         </root>
         <logger name="com.xcodeassociated.service">
             <level value="DEBUG" />

@@ -9,7 +9,21 @@ public class PublicPaths implements com.xcodeassociated.commons.config.security.
 
     @Override
     public List<String> getPaths() {
-        return List.of("/api/v1/public/**");
+        return List.of(
+                "/api/v1/public/**",
+                "/event/api/v1/public/**",
+                "/event/v2/api-docs/**",
+                "/event/v3/api-docs/**",
+                "/event/api-docs/**",
+                "/event/swagger-ui.html",
+                "/event/swagger-ui/**",
+                "/event/swagger-resources/**",
+                "/event/webjars/**",
+                "/event/configuration/**",
+                "/event/favicon.ico",
+                "/event/error",
+                "/event/actuator/**"
+        );
     }
 
 }
